@@ -144,7 +144,19 @@ export default class ImaDAI extends BasePlugin {
         e.payload.samples.forEach(function (sample) {
           this._streamManager.processMetadata('ID3', sample.data, sample.pts);
         }.bind(this));
-      }
+      } else
+        if (this._streamManager && e.payload && e.payload.cues){
+          e.payload.cues.forEach(function (cue){
+            try {
+              let key = cue.value.key;
+              let value = cue.value.data;
+              let parseData = {};
+              parseData[key] = value;
+              this._streamManager.onTimedMetadata(parseData);
+            }
+            catch(e){}
+          }.bind(this));
+        }
     });
     if (this.config.isLive) {
       this._requestLiveStream(this.config.assetKey, this.config.apiKey);
