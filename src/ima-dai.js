@@ -140,23 +140,15 @@ export default class ImaDAI extends BasePlugin {
       false);
 
     this.player.addEventListener("meta", (e) => {
-      if (this._streamManager && e && e.payload && e.payload.samples) {
-        e.payload.samples.forEach(function (sample) {
-          this._streamManager.processMetadata('ID3', sample.data, sample.pts);
+      if (this._streamManager && e && e.payload && e.payload.activeCues) {
+        e.payload.activeCues.forEach(function (cue) {
+          let key = cue.value.key;
+          let value = cue.value.data;
+          let parseData = {};
+          parseData[key] = value;
+          this._streamManager.onTimedMetadata(parseData);
         }.bind(this));
-      } else
-        if (this._streamManager && e.payload && e.payload.cues){
-          e.payload.cues.forEach(function (cue){
-            try {
-              let key = cue.value.key;
-              let value = cue.value.data;
-              let parseData = {};
-              parseData[key] = value;
-              this._streamManager.onTimedMetadata(parseData);
-            }
-            catch(e){}
-          }.bind(this));
-        }
+      }
     });
     if (this.config.isLive) {
       this._requestLiveStream(this.config.assetKey, this.config.apiKey);
@@ -220,6 +212,9 @@ export default class ImaDAI extends BasePlugin {
      var url = data['url'];
      if (this.config.isLive) {
        this.player.configure({type:"Live"});
+       this.player.configure({playback:{
+         "registerMetadataTrackEvent":true
+       }});
      }
      this.player.configure({
        sources: {
