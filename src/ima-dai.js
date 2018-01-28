@@ -126,13 +126,13 @@ export default class ImaDAI extends BasePlugin {
     this._streamManager.setClickElement(this._adsCoverDiv);
     this._streamManager.addEventListener(
       [window.google.ima.dai.api.StreamEvent.Type.LOADED,
-      window.google.ima.dai.api.StreamEvent.Type.CUEPOINTS_CHANGED,
-      window.google.ima.dai.api.StreamEvent.Type.AD_PROGRESS,
-      window.google.ima.dai.api.StreamEvent.Type.FIRST_QUARTILE,
-      window.google.ima.dai.api.StreamEvent.Type.MIDPOINT,
-      window.google.ima.dai.api.StreamEvent.Type.THIRD_QUARTILE,
-      window.google.ima.dai.api.StreamEvent.Type.COMPLETE,
-      window.google.ima.dai.api.StreamEvent.Type.STARTED,
+        window.google.ima.dai.api.StreamEvent.Type.CUEPOINTS_CHANGED,
+        window.google.ima.dai.api.StreamEvent.Type.AD_PROGRESS,
+        window.google.ima.dai.api.StreamEvent.Type.FIRST_QUARTILE,
+        window.google.ima.dai.api.StreamEvent.Type.MIDPOINT,
+        window.google.ima.dai.api.StreamEvent.Type.THIRD_QUARTILE,
+        window.google.ima.dai.api.StreamEvent.Type.COMPLETE,
+        window.google.ima.dai.api.StreamEvent.Type.STARTED,
         window.google.ima.dai.api.StreamEvent.Type.ERROR,
         window.google.ima.dai.api.StreamEvent.Type.AD_BREAK_STARTED,
         window.google.ima.dai.api.StreamEvent.Type.AD_BREAK_ENDED],
@@ -140,8 +140,8 @@ export default class ImaDAI extends BasePlugin {
       false);
 
     this.player.addEventListener("meta", (e) => {
-      if (this._streamManager && e && e.payload && e.payload.activeCues) {
-        e.payload.activeCues.forEach(function (cue) {
+      if (this._streamManager && e && e.payload && e.payload.cues) {
+        e.payload.cues.forEach(function (cue) {
           let key = cue.value.key;
           let value = cue.value.data;
           let parseData = {};
