@@ -1,277 +1,417 @@
 // @flow
+import {Ad, AdBreak, AdBreakType, BasePlugin, EventType, FakeEvent, Utils} from '@playkit-js/playkit-js';
+import {ImaDAIState} from './ima-dai-state';
+import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
+import {ImaDAIAdsController} from './ima-dai-ads-controller';
+import './assets/style.css';
 
-import {BasePlugin} from 'playkit-js'
-import {Utils} from 'playkit-js'
-import './assets/style.css'
-import ImaDAIMiddleware from "./ima-dai-middleware";
+const ADS_CONTAINER_CLASS: string = 'playkit-ads-container';
+const ADS_COVER_CLASS: string = 'playkit-ads-cover';
 
-/**
- * The ads container class.
- * @type {string}
- * @const
- */
-const ADS_CONTAINER_CLASS: string = "playkit-ads-container";
-/**
- * The ads cover class.
- * @type {string}
- * @const
- */
-const ADS_COVER_CLASS: string = "playkit-ads-cover";
+class ImaDAI extends BasePlugin {
+  _loadPromise: DeferredPromise;
+  _sdk: any;
+  _adsContainerDiv: HTMLElement;
+  _adsCoverDiv: HTMLElement;
+  _isAdsCoverActive: boolean;
+  _streamManager: any;
+  _cuePoints: Array<Object>;
+  _adBreak: boolean;
+  _savedSeekTime: ?number;
+  _state: string;
+  _engine: typeof IEngine;
+  _resolveLoad: Function;
+  _rejectLoad: Function;
 
-/**
- * The ima plugin.
- * @classdesc
- */
-export default class ImaDAI extends BasePlugin {
-  /**
-   * The default configuration of the plugin.
-   * @type {Object}
-   * @static
-   */
-  static defaultConfig: Object = {
-    debug: false,
-    companions: {}
-  };
-  /**
-   * The sdk lib url.
-   * @type {string}
-   * @static
-   */
-  static IMA_SDK_LIB_URL: string = "//imasdk.googleapis.com/js/sdkloader/ima3_dai.js";
-  /**
-   * The debug sdk lib url.
-   * @type {string}
-   * @static
-   */
-  static IMA_SDK_DEBUG_LIB_URL: string = "//imasdk.googleapis.com/js/sdkloader/ima3_dai_debug.js";
+  static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
-  /**
-   * Promise for loading the plugin.
-   * Will be resolved after:
-   * 1) Ima script has been loaded in the page.
-   * 2) The ads manager has been loaded and ready to start.
-   * @type {Promise<*>}
-   * @member {}
-   * @public
-   */
-  loadPromise: DeferredPromise;
-  /**
-   * @constructor
-   * @param {string} name - The plugin name.
-   * @param {Player} player - The player instance.
-   * @param {Object} config - The plugin config.
-   */
-  constructor(name: string, player: Player, config: Object) {
-    super(name, player, config);
-   // this._stateMachine = new ImaStateMachine(this);
-   // this._initMembers();
-   // this._addBindings();
-    this._init();
-  }
+  static IMA_DAI_SDK_DEBUG_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai_debug.js';
 
-  _init(){
-    this.loadPromise = Utils.Object.defer();
-    (this._isImaSDKLibLoaded()
-      ? Promise.resolve()
-      : Utils.Dom.loadScriptAsync(this.config.debug ? ImaDAI.IMA_SDK_DEBUG_LIB_URL : ImaDAI.IMA_SDK_LIB_URL))
-      .then(() => {
-        this._sdk = window.google.ima.dai;
-        this.logger.debug("IMA SDK version: " + this._sdk.VERSION);
-        this._initAdsContainer();
-
-        // this._initAdsContainer();
-        // this._initAdsLoader();
-        // this._requestAds();
-        // this._stateMachine.loaded();
-        this.loadPromise.resolve();
-      })
-      .catch((e) => {
-        this.loadPromise.reject(e);
-      });
-  }
-
-  /**
-   * Gets the middleware.
-   * @public
-   * @returns {ImaMiddleware} - The middleware api.
-   */
-  getMiddlewareImpl(): BaseMiddleware {
-    return new ImaDAIMiddleware(this);
-  }
-
-  /**
-   * Initializing the ad container.
-   * @private
-   * @returns {void}
-   */
-  _initAdsContainer(): void {
-    this.logger.debug("Init ads container");
-    const playerView = this.player.getView();
-    // Create ads container
-    this._adsContainerDiv = Utils.Dom.createElement('div');
-    this._adsContainerDiv.id = ADS_CONTAINER_CLASS + playerView.id;
-    this._adsContainerDiv.className = ADS_CONTAINER_CLASS;
-    // Create ads cover
-    this._adsCoverDiv = Utils.Dom.createElement('div');
-    this._adsCoverDiv.id = ADS_COVER_CLASS + playerView.id;
-    this._adsCoverDiv.className = ADS_COVER_CLASS;
-    // Append the ads container to the dom
-    Utils.Dom.appendChild(playerView, this._adsContainerDiv);
-  }
-
-  _initStreamManager() {
-    let videoElement = this.player._el.querySelector('video');
-
-    this._streamManager = new window.google.ima.dai.api.StreamManager(videoElement);
-    this._streamManager.setClickElement(this._adsCoverDiv);
-    this._streamManager.addEventListener(
-      [window.google.ima.dai.api.StreamEvent.Type.LOADED,
-        window.google.ima.dai.api.StreamEvent.Type.CUEPOINTS_CHANGED,
-        window.google.ima.dai.api.StreamEvent.Type.AD_PROGRESS,
-        window.google.ima.dai.api.StreamEvent.Type.FIRST_QUARTILE,
-        window.google.ima.dai.api.StreamEvent.Type.MIDPOINT,
-        window.google.ima.dai.api.StreamEvent.Type.THIRD_QUARTILE,
-        window.google.ima.dai.api.StreamEvent.Type.COMPLETE,
-        window.google.ima.dai.api.StreamEvent.Type.STARTED,
-        window.google.ima.dai.api.StreamEvent.Type.ERROR,
-        window.google.ima.dai.api.StreamEvent.Type.AD_BREAK_STARTED,
-        window.google.ima.dai.api.StreamEvent.Type.AD_BREAK_ENDED],
-      this._onStreamEvent.bind(this),
-      false);
-
-    this.player.addEventListener("meta", (e) => {
-      if (this._streamManager && e && e.payload && e.payload.cues) {
-        e.payload.cues.forEach(function (cue) {
-          let key = cue.value.key;
-          let value = cue.value.data;
-          let parseData = {};
-          parseData[key] = value;
-          this._streamManager.onTimedMetadata(parseData);
-        }.bind(this));
-      }
-    });
-    if (this.config.isLive) {
-      this._requestLiveStream(this.config.assetKey, this.config.apiKey);
-    } else {
-      this._requestVODStream(this.config.cmsId, this.config.videoId, this.config.apiKey);
-    }
-  }
-
-    _onStreamEvent(event: any){
-      let streamData = event.getStreamData();
-      let eventType = window.google.ima.dai.api.StreamEvent.Type;
-      switch (event.type) {
-        case eventType.LOADED:
-          this._loadStream(streamData);
-          break;
-        case  eventType.FIRST_QUARTILE:
-          this.dispatchEvent(this.player.Event.AD_FIRST_QUARTILE);
-          break;
-        case eventType.MIDPOINT:
-          this.dispatchEvent(this.player.Event.AD_MIDPOINT);
-          break;
-        case  eventType.THIRD_QUARTILE:
-          this.dispatchEvent(this.player.Event.AD_THIRD_QUARTILE);
-          break;
-        case  eventType.COMPLETE:
-          this.dispatchEvent(this.player.Event.AD_COMPLETED);
-          break;
-        case  eventType.AD_PROGRESS:
-          this.dispatchEvent(this.player.Event.AD_PROGRESS, {
-            adProgress: {
-              currentTime: streamData.adProgressData.currentTime,
-              duration: streamData.adProgressData.duration
-            }
-          });
-          break;
-        case eventType.CUEPOINTS_CHANGED:
-          this._cuePointsObj = event.getStreamData().cuepoints;
-          break;
-        case eventType.ERROR:
-          this.player.play();
-          break;
-        case eventType.STARTED:
-          break;
-        case eventType.AD_BREAK_STARTED:
-          this._showAdsContainer();
-          this._setToggleAdsCover(true);
-          this.dispatchEvent(this.player.Event.AD_BREAK_START);
-          this.dispatchEvent(this.player.Event.AD_STARTED);
-          break;
-        case eventType.AD_BREAK_ENDED:
-          this._hideAdsContainer();
-          this._setToggleAdsCover(false);
-          this.dispatchEvent(this.player.Event.AD_BREAK_END);
-          break;
-        default:
-          break;
-      }
-    }
-
-   _loadStream(data) {
-     var url = data['url'];
-     if (this.config.isLive) {
-       this.player.configure({type:"Live"});
-       this.player.configure({playback:{
-         "registerMetadataTrackEvent":true
-       }});
-     }
-     this.player.configure({
-       sources: {
-         "hls": [
-           {
-             "mimetype": "application/x-mpegurl",
-             "url": url
-           }
-         ]
-       }
-     });
-
-     this.player.play();
-   }
-
-
-  /**
-   * Whether the ima plugin is valid.
-   * @static
-   * @override
-   * @public
-   */
   static isValid() {
     return true;
   }
 
-  /**
-   * Shows the ads container.
-   * @private
-   * @returns {void}
-   */
-  _showAdsContainer(): void {
-    if (this._adsContainerDiv) {
-      this._adsContainerDiv.style.display = "";
+  static defaultConfig: Object = {
+    snapback: true,
+    debug: false
+  };
+
+  constructor(name: string, player: Player, config: Object) {
+    super(name, player, config);
+    this._initMembers();
+    this._attachListeners();
+    this._init();
+  }
+
+  getEngineDecorator(engine: typeof IEngine): ImaDAIEngineDecorator {
+    this._engine = engine;
+    return new ImaDAIEngineDecorator(engine, this);
+  }
+
+  getAdsController(): IAdsController {
+    return new ImaDAIAdsController(this);
+  }
+
+  getStreamUrl(): Promise<string> {
+    this.logger.debug('Get stream url');
+    return new Promise((resolve, reject) => {
+      return this._loadPromise.then(() => {
+        this._state = ImaDAIState.LOADING;
+        this._resolveLoad = resolve;
+        this._rejectLoad = reject;
+        this._initStreamManager();
+        if (this.player.isLive()) {
+          this._requestLiveStream();
+        } else {
+          this._requestVODStream();
+        }
+      });
+    });
+  }
+
+  skipAd(): void {
+    this.logger.warn("Ima DAI isn't support skip on an ad");
+  }
+
+  playAdNow(adTagUrl: string): void {
+    this.logger.warn('playAdNow API is not implemented yet', adTagUrl);
+  }
+
+  pauseAd(): void {
+    if (this._state === ImaDAIState.PLAYING) {
+      this._state = ImaDAIState.PAUSED;
+      this._dispatchAdEvent(EventType.AD_PAUSED);
     }
   }
 
-  /**
-   * Hides the ads container.
-   * @private
-   * @returns {void}
-   */
-  _hideAdsContainer(): void {
-    if (this._adsContainerDiv) {
-      this._adsContainerDiv.style.display = "none";
+  resumeAd(): void {
+    if (this._state === ImaDAIState.PAUSED) {
+      this._state = ImaDAIState.PLAYING;
+      this._setToggleAdsCover(false);
+      this._dispatchAdEvent(EventType.AD_RESUMED);
     }
   }
-  /**
-   * Toggle the ads cover div.
-   * @param {boolean} enable - Whether to add or remove the ads cover.
-   * @private
-   * @returns {void}
-   */
+
+  getStreamTime(contentTime: number): ?number {
+    if (this._streamManager) {
+      let streamTime = this._streamManager.streamTimeForContentTime(contentTime);
+      const previousCuePoint = this._streamManager.previousCuePointForStreamTime(streamTime);
+      if (this.config.snapback && previousCuePoint && !previousCuePoint.played) {
+        this._savedSeekTime = contentTime;
+        streamTime = previousCuePoint.start;
+      }
+      return streamTime;
+    }
+  }
+
+  getContentTime(streamTime: number): ?number {
+    if (this._streamManager) {
+      return this._streamManager.contentTimeForStreamTime(streamTime);
+    }
+  }
+
+  isAdBreak(): boolean {
+    return this._adBreak;
+  }
+
+  reset(): void {
+    this.logger.debug('reset');
+    this.eventManager.removeAll();
+    this._hideAdsContainer();
+    if (!this._isImaDAILibLoaded()) {
+      return;
+    }
+    if (this._streamManager) {
+      this._streamManager.reset();
+    }
+    this._initMembers();
+    this._attachListeners();
+  }
+
+  destroy(): void {
+    this.logger.debug('destroy');
+    this.eventManager.destroy();
+    this._hideAdsContainer();
+    if (this._streamManager) {
+      this._streamManager.reset();
+      this._streamManager = null;
+    }
+    this._initMembers();
+  }
+
+  _attachListeners(): void {
+    this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => {
+      const mute = event.payload.mute;
+      if (mute && this.isAdBreak()) {
+        this._dispatchAdEvent(EventType.AD_MUTED);
+      }
+    });
+    this.eventManager.listen(this.player, EventType.CHANGE_SOURCE_ENDED, () => {
+      this._attachEngineListeners();
+    });
+  }
+
+  _init(): void {
+    this._loadPromise = Utils.Object.defer();
+    this._loadImaDAILib()
+      .then(() => {
+        this.logger.debug('IMA DAI lib loaded');
+        this._initAdsContainer();
+        this._loadPromise.resolve();
+      })
+      .catch(e => {
+        this._loadPromise.reject(e);
+      });
+  }
+
+  _initMembers(): void {
+    this._state = ImaDAIState.IDLE;
+    this._cuePoints = [];
+    this._adBreak = false;
+    this._savedSeekTime = null;
+  }
+
+  _loadImaDAILib(): Promise<*> {
+    return (this._isImaDAILibLoaded()
+      ? Promise.resolve()
+      : Utils.Dom.loadScriptAsync(this.config.debug ? ImaDAI.IMA_DAI_SDK_DEBUG_LIB_URL : ImaDAI.IMA_DAI_SDK_LIB_URL)
+    ).then(() => (this._sdk = window.google.ima.dai));
+  }
+
+  _isImaDAILibLoaded(): boolean {
+    return window.google && window.google.ima && window.google.ima.dai;
+  }
+
+  _initAdsContainer(): void {
+    this.logger.debug('Init ads container');
+    const playerView = this.player.getView();
+    this._adsContainerDiv = Utils.Dom.createElement('div');
+    this._adsContainerDiv.id = ADS_CONTAINER_CLASS + playerView.id;
+    this._adsContainerDiv.className = ADS_CONTAINER_CLASS;
+    this._adsCoverDiv = Utils.Dom.createElement('div');
+    this._adsCoverDiv.id = ADS_COVER_CLASS + playerView.id;
+    this._adsCoverDiv.className = ADS_COVER_CLASS;
+    this._adsCoverDiv.onclick = e => this._onAdsCoverClicked(e);
+    Utils.Dom.appendChild(playerView, this._adsContainerDiv);
+  }
+
+  _initStreamManager(): void {
+    if (!this._streamManager) {
+      this.logger.debug('Create stream manager');
+      this._streamManager = new this._sdk.api.StreamManager(this.player.getVideoElement());
+      this._streamManager.setClickElement(this._adsContainerDiv);
+      this._attachStreamManagerListeners();
+    }
+  }
+
+  _attachEngineListeners(): void {
+    this.eventManager.listen(this._engine, EventType.DURATION_CHANGE, () => this._onDurationChange());
+    this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
+  }
+
+  _onVolumeChange(): void {
+    if (this.isAdBreak()) {
+      this._dispatchAdEvent(EventType.AD_VOLUME_CHANGED);
+    }
+  }
+
+  _onDurationChange(): void {
+    const adBreaksPosition = [];
+    this._cuePoints.forEach(cuePoint => {
+      const position = this._streamManager.contentTimeForStreamTime(cuePoint.start);
+      if (this.player.duration - position < 1) {
+        adBreaksPosition.push(-1);
+      } else {
+        adBreaksPosition.push(position);
+      }
+    });
+    this._dispatchAdEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: adBreaksPosition});
+  }
+
+  _attachStreamManagerListeners(): void {
+    this.logger.debug('Attach stream manager listeners');
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.LOADED, e => this._onLoaded(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.ERROR, e => this._onError(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.CUEPOINTS_CHANGED, e => this._onCuePointsChanged(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_STARTED, () => this._onAdBreakStarted());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_ENDED, () => this._onAdBreakEnded());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_PROGRESS, e => this._onAdProgress(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.STARTED, e => this._onAdStarted(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.FIRST_QUARTILE, () => this._onAdFirstQuartile());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.MIDPOINT, () => this._onAdMidpoint());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.THIRD_QUARTILE, () => this._onAdThirdQuartile());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.COMPLETE, () => this._onAdComplete());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.CLICK, () => this._onAdClick());
+  }
+
+  _requestVODStream(): void {
+    const streamRequest = new this._sdk.api.VODStreamRequest();
+    streamRequest.contentSourceId = this.config.contentSourceId;
+    streamRequest.videoId = this.config.videoId;
+    this._maybeAddStreamRequestCommonParams(streamRequest);
+    this.logger.debug('Request VOD stream', streamRequest);
+    this._streamManager.requestStream(streamRequest);
+  }
+
+  _requestLiveStream(): void {
+    const streamRequest = new this._sdk.api.LiveStreamRequest();
+    streamRequest.assetKey = this.config.assetKey;
+    this._maybeAddStreamRequestCommonParams(streamRequest);
+    this.logger.debug('Request live stream', streamRequest);
+    this._streamManager.requestStream(streamRequest);
+  }
+
+  _maybeAddStreamRequestCommonParams(streamRequest: Object): void {
+    if (this.config.apiKey) {
+      streamRequest.apiKey = this.config.apiKey;
+    }
+    if (this.config.adTagParameters) {
+      streamRequest.adTagParameters = this.config.adTagParameters;
+    }
+    if (this.config.streamActivityMonitorId) {
+      streamRequest.streamActivityMonitorId = this.config.streamActivityMonitorId;
+    }
+  }
+
+  _onLoaded(event: Object): void {
+    const streamData = event.getStreamData();
+    this._state = ImaDAIState.LOADED;
+    this.logger.debug('Stream loaded', streamData);
+    this._resolveLoad(streamData.url);
+  }
+
+  _onError(event: Object): void {
+    this.logger.error('Error loading stream', event);
+    this._rejectLoad();
+  }
+
+  _onCuePointsChanged(event: Object): void {
+    const streamData = event.getStreamData();
+    this._cuePoints = streamData.cuepoints;
+    this.logger.debug('Cue points changed', this._cuePoints);
+  }
+
+  _onAdBreakStarted(): void {
+    this._adBreak = true;
+    const adBreakOptions = this._getAdBreakOptions();
+    Utils.Dom.setAttribute(this._adsContainerDiv, 'data-adtype', adBreakOptions.type);
+    this._dispatchAdEvent(EventType.AD_BREAK_START, {adBreak: new AdBreak(adBreakOptions)});
+  }
+
+  _onAdProgress(event: Object): void {
+    const adProgressData = event.getStreamData().adProgressData;
+    this._dispatchAdEvent(EventType.AD_PROGRESS, {
+      adProgress: {
+        currentTime: adProgressData.currentTime,
+        duration: adProgressData.duration
+      }
+    });
+  }
+
+  _onAdStarted(event: Object): void {
+    this._state = ImaDAIState.PLAYING;
+    const adOptions = this._getAdOptions(event);
+    this._showAdsContainer();
+    this._dispatchAdEvent(EventType.AD_LOADED, {ad: new Ad(event.getAd().getAdId(), adOptions)});
+    this._dispatchAdEvent(EventType.AD_STARTED);
+  }
+
+  _onAdFirstQuartile(): void {
+    this._dispatchAdEvent(EventType.AD_FIRST_QUARTILE);
+  }
+
+  _onAdMidpoint(): void {
+    this._dispatchAdEvent(EventType.AD_MIDPOINT);
+  }
+
+  _onAdThirdQuartile(): void {
+    this._dispatchAdEvent(EventType.AD_THIRD_QUARTILE);
+  }
+
+  _onAdComplete(): void {
+    this._state = ImaDAIState.IDLE;
+    this._dispatchAdEvent(EventType.AD_COMPLETED);
+  }
+
+  _onAdClick(): void {
+    this.logger.debug('On ad clicked');
+    if (this._state === ImaDAIState.PLAYING) {
+      this.player.pause();
+      this.pauseAd();
+    }
+    this._setToggleAdsCover(true);
+  }
+
+  _onAdBreakEnded(): void {
+    this._adBreak = false;
+    const allCuesPlayed = !this._cuePoints.find(cuePoints => !cuePoints.played);
+    const adBreak = this.player.ads.getAdBreak();
+    this._dispatchAdEvent(EventType.AD_BREAK_END);
+    if (allCuesPlayed || adBreak.type === AdBreakType.POST) {
+      this._state = ImaDAIState.DONE;
+      this._dispatchAdEvent(EventType.ALL_ADS_COMPLETED);
+    }
+    if (this._savedSeekTime) {
+      this.player.currentTime = this._savedSeekTime;
+      this._savedSeekTime = null;
+    }
+  }
+
+  _getAdBreakOptions(): Object {
+    const adBreakOptions = {};
+    const position = this.player.currentTime;
+    if (position && this.player.duration - position < 1) {
+      adBreakOptions.position = -1;
+    } else {
+      adBreakOptions.position = position;
+    }
+    switch (adBreakOptions.position) {
+      case 0:
+        adBreakOptions.type = AdBreakType.PRE;
+        break;
+      case -1:
+        adBreakOptions.type = AdBreakType.POST;
+        break;
+      default:
+        adBreakOptions.type = AdBreakType.MID;
+        break;
+    }
+    return adBreakOptions;
+  }
+
+  _getAdOptions(event: Object): Object {
+    const adOptions = {};
+    const ad = event.getAd();
+    const podInfo = ad.getAdPodInfo();
+    adOptions.duration = ad.getDuration();
+    adOptions.position = podInfo.getAdPosition();
+    adOptions.title = ad.getTitle();
+    adOptions.linear = true;
+    return adOptions;
+  }
+
+  _onAdsCoverClicked(e: Event): void {
+    this.logger.debug('On ads cover clicked');
+    e.stopPropagation();
+    switch (this._state) {
+      case ImaDAIState.PAUSED:
+        this.player.play();
+        this.resumeAd();
+        break;
+      case ImaDAIState.PLAYING:
+        this.player.pause();
+        this.pauseAd();
+        break;
+      default:
+        break;
+    }
+  }
+
   _setToggleAdsCover(enable: boolean): void {
+    this.logger.debug('Set toggle ads cover', enable);
     if (enable) {
-        this._adsContainerDiv.appendChild(this._adsCoverDiv);
-        this._isAdsCoverActive = true;
+      this._adsContainerDiv.appendChild(this._adsCoverDiv);
+      this._isAdsCoverActive = true;
     } else {
       if (this._isAdsCoverActive) {
         this._adsContainerDiv.removeChild(this._adsCoverDiv);
@@ -279,27 +419,23 @@ export default class ImaDAI extends BasePlugin {
       }
     }
   }
-  /**
-   * Checks for ima sdk lib availability.
-   * @returns {boolean} - Whether ima sdk lib is loaded.
-   * @private
-   */
-  _isImaSDKLibLoaded(): boolean {
-    return (window.google && window.google.ima && window.google.ima.dai);
+
+  _showAdsContainer(): void {
+    if (this._adsContainerDiv) {
+      this._adsContainerDiv.style.visibility = 'visible';
+    }
   }
 
-  _requestVODStream(cmsId, videoId, apiKey) {
-    let streamRequest = new window.google.ima.dai.api.VODStreamRequest();
-    streamRequest.contentSourceId = cmsId;
-    streamRequest.videoId = videoId;
-    streamRequest.apiKey = apiKey;
-    this._streamManager.requestStream(streamRequest);
+  _hideAdsContainer(): void {
+    if (this._adsContainerDiv) {
+      this._adsContainerDiv.style.visibility = 'hidden';
+    }
   }
 
-  _requestLiveStream(assetKey, apiKey) {
-    let streamRequest = new window.google.ima.dai.api.LiveStreamRequest();
-    streamRequest.assetKey = assetKey;
-    streamRequest.apiKey = apiKey || '';
-    this._streamManager.requestStream(streamRequest);
+  _dispatchAdEvent(type: string, payload?: Object): void {
+    this.logger.debug(type.toUpperCase(), payload);
+    this.player.dispatchEvent(new FakeEvent(type, payload));
   }
 }
+
+export {ImaDAI};

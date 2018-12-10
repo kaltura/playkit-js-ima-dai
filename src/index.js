@@ -1,18 +1,13 @@
 // @flow
-import {registerPlugin} from 'playkit-js'
-import ImaDAI from './ima-dai'
+import {registerPlugin} from '@playkit-js/playkit-js';
+import {ImaDAI} from './ima-dai';
 
 declare var __VERSION__: string;
 declare var __NAME__: string;
 
-export default ImaDAI;
+export {ImaDAI as Plugin};
 export {__VERSION__ as VERSION, __NAME__ as NAME};
 
-/**
- * The plugin name.
- * @type {string}
- * @const
- */
-const pluginName: string = "imaDAI";
+const pluginName: string = 'imadai';
 
 registerPlugin(pluginName, ImaDAI);
