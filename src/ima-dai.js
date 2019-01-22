@@ -33,6 +33,7 @@ class ImaDAI extends BasePlugin {
 
   static defaultConfig: Object = {
     snapback: true,
+    adsOnReplay: false, // Needs to implement
     debug: false
   };
 
