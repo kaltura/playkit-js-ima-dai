@@ -150,6 +150,23 @@ class ImaDAI extends BasePlugin {
     this.eventManager.listen(this.player, EventType.CHANGE_SOURCE_ENDED, () => {
       this._attachEngineListeners();
     });
+    this.eventManager.listen(this.player, EventType.TIMED_METADATA, event => {
+      if (this._streamManager && event && event.payload) {
+        if (event.payload.samples) {
+          event.payload.samples.forEach(sample => {
+            this._streamManager.processMetadata('ID3', sample.data, sample.pts);
+          });
+        } else if (event.payload.cues) {
+          event.payload.cues.forEach(cue => {
+            let key = cue.value.key;
+            let value = cue.value.data || cue.value.info;
+            let parseData = {};
+            parseData[key] = value;
+            this._streamManager.onTimedMetadata(parseData);
+          });
+        }
+      }
+    });
   }
 
   _init(): void {
@@ -361,7 +378,7 @@ class ImaDAI extends BasePlugin {
   _getAdBreakOptions(): Object {
     const adBreakOptions = {};
     const position = this.player.currentTime;
-    if (position && this.player.duration - position < 1) {
+    if (!this.player.isLive() && position && this.player.duration - position < 1) {
       adBreakOptions.position = -1;
     } else {
       adBreakOptions.position = position;
