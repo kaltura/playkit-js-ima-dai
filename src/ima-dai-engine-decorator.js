@@ -18,6 +18,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
 
   load(startTime: ?number): Promise<Object> {
     this._logger.debug('load', startTime);
+    this._engine.getVideoElement().load();
     return this._plugin
       .getStreamUrl()
       .then(url => {
