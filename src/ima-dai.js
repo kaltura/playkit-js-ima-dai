@@ -353,7 +353,7 @@ class ImaDAI extends BasePlugin {
 
   _onAdClick(): void {
     this.logger.debug('On ad clicked');
-    if (this._state === ImaDAIState.PLAYING) {
+    if (!this.player.isLive() && this._state === ImaDAIState.PLAYING) {
       this.player.pause();
       this.pauseAd();
     }
