@@ -18,6 +18,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
 
   load(startTime: ?number): Promise<Object> {
     this._logger.debug('load', startTime);
+    // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
     return this._plugin
       .getStreamUrl()
