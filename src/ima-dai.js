@@ -1,5 +1,5 @@
 // @flow
-import {Ad, AdBreak, AdBreakType, BasePlugin, EventType, FakeEvent, Utils} from '@playkit-js/playkit-js';
+import {Ad, AdBreak, AdBreakType, BasePlugin, EventType, FakeEvent, Utils, Env} from '@playkit-js/playkit-js';
 import {ImaDAIState} from './ima-dai-state';
 import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
 import {ImaDAIAdsController} from './ima-dai-ads-controller';
@@ -22,6 +22,7 @@ class ImaDAI extends BasePlugin {
   _engine: typeof IEngine;
   _resolveLoad: Function;
   _rejectLoad: Function;
+  _adStartedDispatched: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -88,8 +89,10 @@ class ImaDAI extends BasePlugin {
   resumeAd(): void {
     if (this._state === ImaDAIState.PAUSED) {
       this._state = ImaDAIState.PLAYING;
-      this._setToggleAdsCover(false);
       this._dispatchAdEvent(EventType.AD_RESUMED);
+      if (this._toggleOnClick()) {
+        this._setToggleAdsCover(false);
+      }
     }
   }
 
@@ -187,6 +190,7 @@ class ImaDAI extends BasePlugin {
     this._cuePoints = [];
     this._adBreak = false;
     this._savedSeekTime = null;
+    this._adStartedDispatched = false;
   }
 
   _loadImaDAILib(): Promise<*> {
@@ -314,6 +318,7 @@ class ImaDAI extends BasePlugin {
     const adBreakOptions = this._getAdBreakOptions();
     Utils.Dom.setAttribute(this._adsContainerDiv, 'data-adtype', adBreakOptions.type);
     this._dispatchAdEvent(EventType.AD_BREAK_START, {adBreak: new AdBreak(adBreakOptions)});
+    this._showAdsContainer();
   }
 
   _onAdProgress(event: Object): void {
@@ -324,14 +329,17 @@ class ImaDAI extends BasePlugin {
         duration: adProgressData.duration
       }
     });
+    if (!this._adStartedDispatched) {
+      this._onAdStarted(event);
+    }
   }
 
   _onAdStarted(event: Object): void {
     this._state = ImaDAIState.PLAYING;
     const adOptions = this._getAdOptions(event);
-    this._showAdsContainer();
-    this._dispatchAdEvent(EventType.AD_LOADED, {ad: new Ad(event.getAd().getAdId(), adOptions)});
+    this._dispatchAdEvent(EventType.AD_LOADED, {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)});
     this._dispatchAdEvent(EventType.AD_STARTED);
+    this._adStartedDispatched = true;
   }
 
   _onAdFirstQuartile(): void {
@@ -349,15 +357,18 @@ class ImaDAI extends BasePlugin {
   _onAdComplete(): void {
     this._state = ImaDAIState.IDLE;
     this._dispatchAdEvent(EventType.AD_COMPLETED);
+    this._adStartedDispatched = false;
   }
 
   _onAdClick(): void {
     this.logger.debug('On ad clicked');
-    if (!this.player.isLive() && this._state === ImaDAIState.PLAYING) {
-      this.player.pause();
-      this.pauseAd();
+    if (this._toggleOnClick()) {
+      this._setToggleAdsCover(true);
+      if (this._state === ImaDAIState.PLAYING) {
+        this.player.pause();
+        this.pauseAd();
+      }
     }
-    this._setToggleAdsCover(true);
   }
 
   _onAdBreakEnded(): void {
@@ -373,6 +384,8 @@ class ImaDAI extends BasePlugin {
       this.player.currentTime = this._savedSeekTime;
       this._savedSeekTime = null;
     }
+    this._adStartedDispatched = false;
+    this._hideAdsContainer();
   }
 
   _getAdBreakOptions(): Object {
@@ -400,10 +413,12 @@ class ImaDAI extends BasePlugin {
   _getAdOptions(event: Object): Object {
     const adOptions = {};
     const ad = event.getAd();
-    const podInfo = ad.getAdPodInfo();
-    adOptions.duration = ad.getDuration();
-    adOptions.position = podInfo.getAdPosition();
-    adOptions.title = ad.getTitle();
+    if (ad) {
+      const podInfo = ad.getAdPodInfo();
+      adOptions.duration = ad.getDuration();
+      adOptions.position = podInfo.getAdPosition();
+      adOptions.title = ad.getTitle();
+    }
     adOptions.linear = true;
     return adOptions;
   }
@@ -440,19 +455,23 @@ class ImaDAI extends BasePlugin {
 
   _showAdsContainer(): void {
     if (this._adsContainerDiv) {
-      this._adsContainerDiv.style.visibility = 'visible';
+      this._adsContainerDiv.style.display = 'block';
     }
   }
 
   _hideAdsContainer(): void {
     if (this._adsContainerDiv) {
-      this._adsContainerDiv.style.visibility = 'hidden';
+      this._adsContainerDiv.style.display = 'none';
     }
   }
 
   _dispatchAdEvent(type: string, payload?: Object): void {
     this.logger.debug(type.toUpperCase(), payload);
     this.player.dispatchEvent(new FakeEvent(type, payload));
+  }
+
+  _toggleOnClick(): boolean {
+    return Env.device.type || !this.player.isLive();
   }
 }
 
