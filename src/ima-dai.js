@@ -23,6 +23,7 @@ class ImaDAI extends BasePlugin {
   _resolveLoad: Function;
   _rejectLoad: Function;
   _adStartedDispatched: boolean;
+  _playbackRate: number;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -191,6 +192,7 @@ class ImaDAI extends BasePlugin {
     this._adBreak = false;
     this._savedSeekTime = null;
     this._adStartedDispatched = false;
+    this._playbackRate = 1;
   }
 
   _loadImaDAILib(): Promise<*> {
@@ -227,7 +229,7 @@ class ImaDAI extends BasePlugin {
   }
 
   _attachEngineListeners(): void {
-    this.eventManager.listen(this._engine, EventType.DURATION_CHANGE, () => this._onDurationChange());
+    this.eventManager.listen(this._engine, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
     this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
   }
 
@@ -237,7 +239,7 @@ class ImaDAI extends BasePlugin {
     }
   }
 
-  _onDurationChange(): void {
+  _onLoadedMetadata(): void {
     const adBreaksPosition = [];
     this._cuePoints.forEach(cuePoint => {
       const position = this._streamManager.contentTimeForStreamTime(cuePoint.start);
@@ -319,6 +321,8 @@ class ImaDAI extends BasePlugin {
     Utils.Dom.setAttribute(this._adsContainerDiv, 'data-adtype', adBreakOptions.type);
     this._dispatchAdEvent(EventType.AD_BREAK_START, {adBreak: new AdBreak(adBreakOptions)});
     this._showAdsContainer();
+    this._playbackRate = this.player.playbackRate;
+    this.player.playbackRate !== 1 && (this.player.playbackRate = 1);
   }
 
   _onAdProgress(event: Object): void {
@@ -386,6 +390,7 @@ class ImaDAI extends BasePlugin {
     }
     this._adStartedDispatched = false;
     this._hideAdsContainer();
+    this._playbackRate !== 1 && (this.player.playbackRate = this._playbackRate);
   }
 
   _getAdBreakOptions(): Object {
