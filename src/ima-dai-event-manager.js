@@ -11,8 +11,7 @@ class ImaDAIEventManager {
   _eventManager: EventManager;
   _parallelEvents: Array<string> = [Html5EventType.VOLUME_CHANGE];
   _stopEventDispatchingMap: {[event: string]: boolean} = {
-    [Html5EventType.ENDED]: false,
-    [Html5EventType.TIME_UPDATE]: false
+    [Html5EventType.ENDED]: false
   };
 
   constructor(plugin: ImaDAI, dispatchEventHandler: Function) {
@@ -36,11 +35,8 @@ class ImaDAIEventManager {
     }
   }
 
-  get ended(): boolean {
-    return this._stopEventDispatchingMap[Html5EventType.ENDED];
-  }
-
   reset(): void {
+    this._stopEventDispatchingMap[Html5EventType.ENDED] = false;
     this._queue.empty();
     this._eventManager.removeAll();
     this._attachListeners();
@@ -54,6 +50,11 @@ class ImaDAIEventManager {
   _attachListeners(): void {
     this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_END, () => this._onAdBreakEnd());
     this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
+    this._eventManager.listen(
+      this._plugin.player,
+      Html5EventType.PLAY,
+      () => !this._plugin.isAdBreak() && (this._stopEventDispatchingMap[Html5EventType.ENDED] = false)
+    );
   }
 
   _onAdBreakStart(event: EventManager): void {
@@ -61,7 +62,6 @@ class ImaDAIEventManager {
     if (adBreak.type === AdBreakType.POST) {
       this._logger.debug('Postroll is playing, trigger ENDED event');
       this._stopEventDispatchingMap[Html5EventType.ENDED] = true;
-      this._stopEventDispatchingMap[Html5EventType.TIME_UPDATE] = true;
       this._dispatchEventHandler(new FakeEvent(Html5EventType.ENDED));
     }
   }

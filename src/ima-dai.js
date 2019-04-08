@@ -154,6 +154,15 @@ class ImaDAI extends BasePlugin {
     this.eventManager.listen(this.player, EventType.CHANGE_SOURCE_ENDED, () => {
       this._attachEngineListeners();
     });
+    this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => {
+      const currentCuePoint = this._cuePoints.find(cuePoint => {
+        return cuePoint.played && (this._engine.currentTime >= cuePoint.start && Math.ceil(this._engine.currentTime) < cuePoint.end);
+      });
+      if (currentCuePoint) {
+        this.logger.debug('Ad already played - skipped');
+        this.player.currentTime += 0.5;
+      }
+    });
     this.eventManager.listen(this.player, EventType.TIMED_METADATA, event => {
       if (this._streamManager && event && event.payload) {
         if (event.payload.samples) {

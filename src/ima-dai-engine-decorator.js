@@ -1,18 +1,21 @@
 // @flow
-import {BaseEngineDecorator, FakeEvent, getLogger} from '@playkit-js/playkit-js';
+import {AdBreakType, AdEventType, BaseEngineDecorator, EventManager, FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
 import {ImaDAI} from './ima-dai';
 import {ImaDAIEventManager} from './ima-dai-event-manager';
 
 class ImaDAIEngineDecorator extends BaseEngineDecorator {
   _plugin: ImaDAI;
   _logger: Object;
-  _pluginDestroyed: boolean = false;
+  _pluginDestroyed: boolean;
+  _contentEnded: boolean;
 
   constructor(engine: typeof IEngine, plugin: ImaDAI) {
     super(engine);
     this._plugin = plugin;
     this._pluginDestroyed = false;
+    this._contentEnded = false;
     this._daiEventManager = new ImaDAIEventManager(plugin, super.dispatchEvent.bind(this));
+    this._attachListeners();
     this._logger = getLogger('ImaDAIEngineDecorator');
   }
 
@@ -68,6 +71,8 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
     this._pluginDestroyed = false;
     this._daiEventManager.reset();
     this._engine.reset();
+    this._contentEnded = false;
+    this._attachListeners();
   }
 
   destroy(): void {
@@ -84,10 +89,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
   }
 
   get ended(): boolean {
-    if (this._pluginDestroyed) {
-      return super.ended;
-    }
-    return this._daiEventManager.ended;
+    return super.ended || (!this._pluginDestroyed && this._contentEnded);
   }
 
   set currentTime(to: number): void {
@@ -113,6 +115,18 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
       return super.duration;
     }
     return this._plugin.getContentTime(this._engine.duration);
+  }
+
+  _attachListeners(): void {
+    this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
+    this._eventManager.listen(this._plugin.player, Html5EventType.PLAY, () => !this._plugin.isAdBreak() && (this._contentEnded = false));
+  }
+
+  _onAdBreakStart(event: EventManager): void {
+    const adBreak = event.payload.adBreak;
+    if (adBreak.type === AdBreakType.POST) {
+      this._contentEnded = true;
+    }
   }
 }
 
