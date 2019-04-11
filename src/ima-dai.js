@@ -13,7 +13,6 @@ class ImaDAI extends BasePlugin {
   _sdk: any;
   _adsContainerDiv: HTMLElement;
   _adsCoverDiv: HTMLElement;
-  _isAdsCoverActive: boolean;
   _streamManager: any;
   _cuePoints: Array<Object>;
   _adBreak: boolean;
@@ -163,13 +162,9 @@ class ImaDAI extends BasePlugin {
         this.player.currentTime += 0.5;
       }
     });
-    this.eventManager.listen(this.player, EventType.TIMED_METADATA, event => {
-      if (this._streamManager && event && event.payload) {
-        if (event.payload.samples) {
-          event.payload.samples.forEach(sample => {
-            this._streamManager.processMetadata('ID3', sample.data, sample.pts);
-          });
-        } else if (event.payload.cues) {
+    if (this.player.config.playback.preferNative.hls) {
+      this.eventManager.listen(this.player, EventType.TIMED_METADATA, event => {
+        if (this._streamManager && event && event.payload) {
           event.payload.cues.forEach(cue => {
             let key = cue.value.key;
             let value = cue.value.data || cue.value.info;
@@ -178,8 +173,8 @@ class ImaDAI extends BasePlugin {
             this._streamManager.onTimedMetadata(parseData);
           });
         }
-      }
-    });
+      });
+    }
   }
 
   _init(): void {
@@ -240,6 +235,7 @@ class ImaDAI extends BasePlugin {
   _attachEngineListeners(): void {
     this.eventManager.listen(this._engine, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
     this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
+    this.eventManager.listen(this._engine, 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
   }
 
   _onVolumeChange(): void {
@@ -259,6 +255,14 @@ class ImaDAI extends BasePlugin {
       }
     });
     this._dispatchAdEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: adBreaksPosition});
+  }
+
+  _onHlsFragParsingMetadata(event: FakeEvent): void {
+    if (this._streamManager && event && event.payload) {
+      event.payload.samples.forEach(sample => {
+        this._streamManager.processMetadata('ID3', sample.data, sample.pts);
+      });
+    }
   }
 
   _attachStreamManagerListeners(): void {
@@ -456,15 +460,7 @@ class ImaDAI extends BasePlugin {
 
   _setToggleAdsCover(enable: boolean): void {
     this.logger.debug('Set toggle ads cover', enable);
-    if (enable) {
-      this._adsContainerDiv.appendChild(this._adsCoverDiv);
-      this._isAdsCoverActive = true;
-    } else {
-      if (this._isAdsCoverActive) {
-        this._adsContainerDiv.removeChild(this._adsCoverDiv);
-        this._isAdsCoverActive = false;
-      }
-    }
+    enable ? this._adsContainerDiv.appendChild(this._adsCoverDiv) : this._adsContainerDiv.removeChild(this._adsCoverDiv);
   }
 
   _showAdsContainer(): void {
