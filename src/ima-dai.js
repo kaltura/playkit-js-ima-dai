@@ -7,6 +7,7 @@ import './assets/style.css';
 
 const ADS_CONTAINER_CLASS: string = 'playkit-ads-container';
 const ADS_COVER_CLASS: string = 'playkit-ads-cover';
+const FIRST_FRAME_LENGTH: number = 0.5;
 
 class ImaDAI extends BasePlugin {
   _loadPromise: DeferredPromise;
@@ -90,7 +91,7 @@ class ImaDAI extends BasePlugin {
     if (this._state === ImaDAIState.PAUSED) {
       this._state = ImaDAIState.PLAYING;
       this._dispatchAdEvent(EventType.AD_RESUMED);
-      if (this._toggleOnClick()) {
+      if (this._shouldPauseOnAdClick()) {
         this._setToggleAdsCover(false);
       }
     }
@@ -159,7 +160,7 @@ class ImaDAI extends BasePlugin {
       });
       if (currentCuePoint) {
         this.logger.debug('Ad already played - skipped');
-        this.player.currentTime += 0.5;
+        this.player.currentTime += FIRST_FRAME_LENGTH;
       }
     });
     if (this.player.config.playback.preferNative.hls) {
@@ -379,7 +380,7 @@ class ImaDAI extends BasePlugin {
 
   _onAdClick(): void {
     this.logger.debug('On ad clicked');
-    if (this._toggleOnClick()) {
+    if (this._shouldPauseOnAdClick()) {
       this._setToggleAdsCover(true);
       if (this._state === ImaDAIState.PLAYING) {
         this.player.pause();
@@ -480,7 +481,7 @@ class ImaDAI extends BasePlugin {
     this.player.dispatchEvent(new FakeEvent(type, payload));
   }
 
-  _toggleOnClick(): boolean {
+  _shouldPauseOnAdClick(): boolean {
     return Env.device.type || !this.player.isLive();
   }
 }
