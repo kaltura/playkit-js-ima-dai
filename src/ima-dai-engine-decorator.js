@@ -9,7 +9,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
   _pluginDestroyed: boolean;
   _contentEnded: boolean;
 
-  constructor(engine: typeof IEngine, plugin: ImaDAI) {
+  constructor(engine: IEngine, plugin: ImaDAI) {
     super(engine);
     this._plugin = plugin;
     this._pluginDestroyed = false;

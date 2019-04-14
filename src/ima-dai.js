@@ -19,7 +19,7 @@ class ImaDAI extends BasePlugin {
   _adBreak: boolean;
   _savedSeekTime: ?number;
   _state: string;
-  _engine: typeof IEngine;
+  _engine: IEngine;
   _resolveLoad: Function;
   _rejectLoad: Function;
   _adStartedDispatched: boolean;
@@ -46,7 +46,7 @@ class ImaDAI extends BasePlugin {
     this._init();
   }
 
-  getEngineDecorator(engine: typeof IEngine): ImaDAIEngineDecorator {
+  getEngineDecorator(engine: IEngine): ImaDAIEngineDecorator {
     this._engine = engine;
     return new ImaDAIEngineDecorator(engine, this);
   }
