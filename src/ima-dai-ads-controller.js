@@ -23,6 +23,7 @@ class ImaDAIAdsController implements IAdsController {
    * Skip on an ad.
    * @public
    * @returns {void}
+   * @instance
    * @memberof ImaDAIAdsController
    */
   skipAd(): void {
@@ -34,6 +35,7 @@ class ImaDAIAdsController implements IAdsController {
    * @param {string} adTagUrl - The ad tag url to play.
    * @public
    * @returns {void}
+   * @instance
    * @memberof ImaDAIAdsController
    */
   playAdNow(adTagUrl: string): void {

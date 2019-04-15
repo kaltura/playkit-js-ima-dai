@@ -9,7 +9,17 @@ const ADS_CONTAINER_CLASS: string = 'playkit-ads-container';
 const ADS_COVER_CLASS: string = 'playkit-ads-cover';
 const FIRST_FRAME_LENGTH: number = 0.5;
 
-class ImaDAI extends BasePlugin {
+/**
+ * The ima-dai plugin.
+ * @class ImaDAI
+ * @param {string} name - The plugin name.
+ * @param {Player} player - The player instance.
+ * @param {ImaDAIConfigObject} config - The plugin config.
+ * @implements {IAdsControllerProvider}
+ * @implements {IEngineDecoratorProvider}
+ * @extends BasePlugin
+ */
+class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecoratorProvider {
   _loadPromise: DeferredPromise;
   _sdk: any;
   _adsContainerDiv: HTMLElement;
@@ -29,10 +39,23 @@ class ImaDAI extends BasePlugin {
 
   static IMA_DAI_SDK_DEBUG_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai_debug.js';
 
+  /**
+   * Whether the ima-dai plugin is valid.
+   * @static
+   * @override
+   * @public
+   * @memberof ImaDAI
+   */
   static isValid() {
     return true;
   }
 
+  /**
+   * The default configuration of the plugin.
+   * @type {Object}
+   * @static
+   * @memberof ImaDAI
+   */
   static defaultConfig: Object = {
     snapback: true,
     debug: false
@@ -45,15 +68,37 @@ class ImaDAI extends BasePlugin {
     this._init();
   }
 
+  /**
+   * Gets the engine decorator.
+   * @param {IEngine} engine - The engine to decorate.
+   * @public
+   * @returns {ImaDAIEngineDecorator} - The ads api.
+   * @instance
+   * @memberof ImaDAI
+   */
   getEngineDecorator(engine: IEngine): ImaDAIEngineDecorator {
     this._engine = engine;
     return new ImaDAIEngineDecorator(engine, this);
   }
 
-  getAdsController(): IAdsController {
+  /**
+   * Gets the ads controller.
+   * @public
+   * @returns {ImaDAIAdsController} - The ads api.
+   * @instance
+   * @memberof ImaDAI
+   */
+  getAdsController(): ImaDAIAdsController {
     return new ImaDAIAdsController(this);
   }
 
+  /**
+   * Gets the stream URL from ima-dai SDK.
+   * @public
+   * @returns {Promise<string>} - A promise of the URL to play.
+   * @instance
+   * @memberof ImaDAI
+   */
   getStreamUrl(): Promise<string> {
     this.logger.debug('Get stream url');
     return new Promise((resolve, reject) => {
@@ -71,14 +116,35 @@ class ImaDAI extends BasePlugin {
     });
   }
 
+  /**
+   * Skips on an ad.
+   * @returns {void}
+   * @instance
+   * @memberof ImaDAI
+   */
   skipAd(): void {
     this.logger.warn("Ima DAI isn't support skip on an ad");
   }
 
+  /**
+   * Plays ad on demand.
+   * @param {string} adTagUrl - The ad tag url to play.
+   * @returns {void}
+   * @private
+   * @instance
+   * @memberof ImaDAI
+   */
   playAdNow(adTagUrl: string): void {
     this.logger.warn('playAdNow API is not implemented yet', adTagUrl);
   }
 
+  /**
+   * Pausing the ad.
+   * @public
+   * @returns {void}
+   * @instance
+   * @memberof ImaDAI
+   */
   pauseAd(): void {
     if (this._state === ImaDAIState.PLAYING) {
       this._state = ImaDAIState.PAUSED;
@@ -86,6 +152,13 @@ class ImaDAI extends BasePlugin {
     }
   }
 
+  /**
+   * Resuming the ad.
+   * @public
+   * @returns {void}
+   * @instance
+   * @memberof ImaDAI
+   */
   resumeAd(): void {
     if (this._state === ImaDAIState.PAUSED) {
       this._state = ImaDAIState.PLAYING;
@@ -96,7 +169,15 @@ class ImaDAI extends BasePlugin {
     }
   }
 
-  getStreamTime(contentTime: number): ?number {
+  /**
+   * Returns the stream time with ads for a given content time. Returns the given content time for live streams.
+   * @param {number} contentTime - the content time without any ads (in seconds).
+   * @public
+   * @returns {number} - The stream time that corresponds with the given content time once ads are inserted.
+   * @instance
+   * @memberof ImaDAI
+   */
+  getStreamTime(contentTime: number): number {
     if (this._streamManager) {
       let streamTime = this._streamManager.streamTimeForContentTime(contentTime);
       const previousCuePoint = this._streamManager.previousCuePointForStreamTime(streamTime);
@@ -108,16 +189,39 @@ class ImaDAI extends BasePlugin {
     }
   }
 
+  /**
+   * Returns the content time without ads for a given stream time. Returns the given stream time for live streams.
+   * @param {number} streamTime - the stream time with inserted ads (in seconds).
+   * @public
+   * @returns {number} - The content time that corresponds with the given stream time once ads are removed.
+   * @instance
+   * @memberof ImaDAI
+   */
   getContentTime(streamTime: number): ?number {
     if (this._streamManager) {
       return this._streamManager.contentTimeForStreamTime(streamTime);
     }
   }
 
+  /**
+   * Whether the player is in an ad break.
+   * @public
+   * @returns {boolean} - Is ad break.
+   * @instance
+   * @memberof ImaDAI
+   */
   isAdBreak(): boolean {
     return this._adBreak;
   }
 
+  /**
+   * Resets the plugin.
+   * @override
+   * @public
+   * @returns {void}
+   * @instance
+   * @memberof ImaDAI
+   */
   reset(): void {
     this.logger.debug('reset');
     this.eventManager.removeAll();
@@ -132,6 +236,14 @@ class ImaDAI extends BasePlugin {
     this._attachListeners();
   }
 
+  /**
+   * Destroys the plugin.
+   * @override
+   * @public
+   * @returns {void}
+   * @instance
+   * @memberof ImaDAI
+   */
   destroy(): void {
     this.logger.debug('destroy');
     this.eventManager.destroy();
