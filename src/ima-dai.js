@@ -186,6 +186,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         streamTime = previousCuePoint.start;
       }
       return streamTime;
+    } else {
+      return 0;
     }
   }
 
