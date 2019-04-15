@@ -55,7 +55,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
 
   /**
    * Dispatch an event from this object.
-   * @param {!Event} event - The event to be dispatched from this object.
+   * @param {Event} event - The event to be dispatched from this object.
    * @return {boolean} - True if the default action was prevented.
    * @override
    * @instance

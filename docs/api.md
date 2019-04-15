@@ -118,7 +118,7 @@ Dispatch an event from this object.
 
 #### Parameters
 
-* `event` **![Event][50]** The event to be dispatched from this object.
+* `event` **[Event][50]** The event to be dispatched from this object.
 
 Returns **[boolean][46]** True if the default action was prevented.
 
