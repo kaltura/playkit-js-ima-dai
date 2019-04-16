@@ -5,8 +5,8 @@ import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
 import {ImaDAIAdsController} from './ima-dai-ads-controller';
 import './assets/style.css';
 
-const ADS_CONTAINER_CLASS: string = 'playkit-ads-container';
-const ADS_COVER_CLASS: string = 'playkit-ads-cover';
+const ADS_CONTAINER_CLASS: string = 'playkit-dai-ads-container';
+const ADS_COVER_CLASS: string = 'playkit-dai-ads-cover';
 const FIRST_FRAME_LENGTH: number = 0.5;
 
 /**
