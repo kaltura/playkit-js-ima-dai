@@ -34,6 +34,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _rejectLoad: Function;
   _adStartedDispatched: boolean;
   _playbackRate: number;
+  _adsCoverDivExists: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -234,6 +235,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     if (this._streamManager) {
       this._streamManager.reset();
     }
+    this._setToggleAdsCover(false);
     this._initMembers();
     this._attachListeners();
   }
@@ -310,6 +312,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._adBreak = false;
     this._savedSeekTime = null;
     this._adStartedDispatched = false;
+    this._adsCoverDivExists = false;
     this._playbackRate = 1;
   }
 
@@ -575,7 +578,12 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _setToggleAdsCover(enable: boolean): void {
     this.logger.debug('Set toggle ads cover', enable);
-    enable ? Utils.Dom.appendChild(this._adsContainerDiv, this._adsCoverDiv) : Utils.Dom.removeChild(this._adsContainerDiv, this._adsCoverDiv);
+    if (enable) {
+      Utils.Dom.appendChild(this._adsContainerDiv, this._adsCoverDiv);
+      this._adsCoverDivExists = true;
+    } else if (this._adsCoverDivExists) {
+      Utils.Dom.removeChild(this._adsContainerDiv, this._adsCoverDiv);
+    }
   }
 
   _showAdsContainer(): void {
