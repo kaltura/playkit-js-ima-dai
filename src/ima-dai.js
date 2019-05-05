@@ -575,7 +575,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _setToggleAdsCover(enable: boolean): void {
     this.logger.debug('Set toggle ads cover', enable);
-    enable ? this._adsContainerDiv.appendChild(this._adsCoverDiv) : this._adsContainerDiv.removeChild(this._adsCoverDiv);
+    enable ? Utils.Dom.appendChild(this._adsContainerDiv, this._adsCoverDiv) : Utils.Dom.removeChild(this._adsContainerDiv, this._adsCoverDiv);
   }
 
   _showAdsContainer(): void {
