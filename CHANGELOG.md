@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.1.3"></a>
+## [0.1.3](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.2...v0.1.3) (2019-05-06)
+
+
+### Bug Fixes
+
+* **FEC-9075:** resume ad from toolbar doesn't work ([#7](https://github.com/kaltura/playkit-js-ima-dai/issues/7)) ([4bd0883](https://github.com/kaltura/playkit-js-ima-dai/commit/4bd0883))
+
+
+
 <a name="0.1.2"></a>
 ## [0.1.2](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.1...v0.1.2) (2019-05-01)
 
