@@ -583,6 +583,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       this._adsCoverDivExists = true;
     } else if (this._adsCoverDivExists) {
       Utils.Dom.removeChild(this._adsContainerDiv, this._adsCoverDiv);
+      this._adsCoverDivExists = false;
     }
   }
 
