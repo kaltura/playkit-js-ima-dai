@@ -9,7 +9,7 @@ class ImaDAIEventManager {
   _queue: ImaDAIEventQueue;
   _dispatchEventHandler: Function;
   _eventManager: EventManager;
-  _parallelEvents: Array<string> = [Html5EventType.VOLUME_CHANGE];
+  _parallelEvents: Array<string> = [Html5EventType.VOLUME_CHANGE, Html5EventType.SEEKED];
   _stopEventDispatchingMap: {[event: string]: boolean} = {
     [Html5EventType.ENDED]: false
   };
