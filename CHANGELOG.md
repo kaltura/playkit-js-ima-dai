@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.3...v0.1.4) (2019-05-07)
+
+
+### Bug Fixes
+
+* **FEC-9080:** when seeking back from end screen no play button displayed ([#8](https://github.com/kaltura/playkit-js-ima-dai/issues/8)) ([6f4bccc](https://github.com/kaltura/playkit-js-ima-dai/commit/6f4bccc))
+* **FEC-9081:** wrong state when seeking into ad in pause mode ([#9](https://github.com/kaltura/playkit-js-ima-dai/issues/9)) ([eeb6b07](https://github.com/kaltura/playkit-js-ima-dai/commit/eeb6b07))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.2...v0.1.3) (2019-05-06)
 
