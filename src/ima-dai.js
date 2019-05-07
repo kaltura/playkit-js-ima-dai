@@ -474,7 +474,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._dispatchAdEvent(EventType.AD_LOADED, {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)});
     this._dispatchAdEvent(EventType.AD_STARTED);
     this._adStartedDispatched = true;
-    if (this.player.getVideoElement().paused) {
+    if (this._engine.paused) {
       this.pauseAd();
     }
   }
