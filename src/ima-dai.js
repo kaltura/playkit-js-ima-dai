@@ -7,7 +7,6 @@ import './assets/style.css';
 
 const ADS_CONTAINER_CLASS: string = 'playkit-dai-ads-container';
 const ADS_COVER_CLASS: string = 'playkit-dai-ads-cover';
-const FIRST_FRAME_LENGTH: number = 0.5;
 
 /**
  * The ima-dai plugin.
@@ -275,7 +274,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       });
       if (currentCuePoint) {
         this.logger.debug('Ad already played - skipped');
-        this.player.currentTime += FIRST_FRAME_LENGTH;
+        this._engine.currentTime = currentCuePoint.end;
       }
     });
     if (this.player.config.playback.preferNative.hls) {
