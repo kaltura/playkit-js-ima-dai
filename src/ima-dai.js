@@ -260,10 +260,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       this._attachEngineListeners();
     });
     this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => {
-      const currentCuePoint = this._cuePoints.find(cuePoint => {
-        return cuePoint.played && (this._engine.currentTime >= cuePoint.start && Math.ceil(this._engine.currentTime) < cuePoint.end);
-      });
-      if (currentCuePoint) {
+      const currentCuePoint = this._streamManager.previousCuePointForStreamTime(this._engine.currentTime);
+      if (currentCuePoint.played && this._engine.currentTime < currentCuePoint.end) {
         this.logger.debug('Ad already played - skipped');
         this._engine.currentTime = currentCuePoint.end;
       }
