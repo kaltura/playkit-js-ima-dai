@@ -553,9 +553,10 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     const ad = event.getAd();
     if (ad) {
       const podInfo = ad.getAdPodInfo();
+      adOptions.system = ad.getAdSystem();
       adOptions.duration = ad.getDuration();
-      adOptions.position = podInfo.getAdPosition();
       adOptions.title = ad.getTitle();
+      adOptions.position = podInfo.getAdPosition();
     }
     adOptions.linear = true;
     return adOptions;
