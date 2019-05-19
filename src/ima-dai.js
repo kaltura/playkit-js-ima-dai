@@ -514,9 +514,18 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     const allCuesPlayed = !this._cuePoints.find(cuePoints => !cuePoints.played);
     const adBreak = this.player.ads.getAdBreak();
     this._dispatchAdEvent(EventType.AD_BREAK_END);
-    if (allCuesPlayed || adBreak.type === AdBreakType.POST) {
+    const dispatchAllAdsCompleted = () => {
       this._state = ImaDAIState.DONE;
       this._dispatchAdEvent(EventType.ALL_ADS_COMPLETED);
+    };
+    if (adBreak.type === AdBreakType.POST) {
+      if (this._engine.ended) {
+        dispatchAllAdsCompleted();
+      } else {
+        this.eventManager.listenOnce(this._engine, EventType.ENDED, dispatchAllAdsCompleted);
+      }
+    } else if (allCuesPlayed) {
+      dispatchAllAdsCompleted();
     }
     if (this._savedSeekTime) {
       this.player.currentTime = this._savedSeekTime;
