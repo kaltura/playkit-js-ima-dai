@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.1.5"></a>
+## [0.1.5](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.4...v0.1.5) (2019-05-16)
+
+
+### Bug Fixes
+
+* **FEC-9086:** the screen blinking and endless spinner displayed when replay is ended ([#10](https://github.com/kaltura/playkit-js-ima-dai/issues/10)) ([1abaef0](https://github.com/kaltura/playkit-js-ima-dai/commit/1abaef0))
+* add the ad system to the ad event payload ([#11](https://github.com/kaltura/playkit-js-ima-dai/issues/11)) ([05cdfb0](https://github.com/kaltura/playkit-js-ima-dai/commit/05cdfb0))
+
+
+
 <a name="0.1.4"></a>
 ## [0.1.4](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.3...v0.1.4) (2019-05-07)
 
