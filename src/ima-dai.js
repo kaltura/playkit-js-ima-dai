@@ -34,6 +34,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _adStartedDispatched: boolean;
   _playbackRate: number;
   _adsCoverDivExists: boolean;
+  _snapback: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -178,17 +179,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
    * @memberof ImaDAI
    */
   getStreamTime(contentTime: number): number {
-    if (this._streamManager) {
-      let streamTime = this._streamManager.streamTimeForContentTime(contentTime);
-      const previousCuePoint = this._streamManager.previousCuePointForStreamTime(streamTime);
-      if (this.config.snapback && previousCuePoint && !previousCuePoint.played) {
-        this._savedSeekTime = contentTime;
-        streamTime = previousCuePoint.start;
-      }
-      return streamTime;
-    } else {
-      return 0;
-    }
+    return this._streamManager ? this._streamManager.streamTimeForContentTime(contentTime) : 0;
   }
 
   /**
@@ -269,10 +260,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       this._attachEngineListeners();
     });
     this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => {
-      const currentCuePoint = this._cuePoints.find(cuePoint => {
-        return cuePoint.played && (this._engine.currentTime >= cuePoint.start && Math.ceil(this._engine.currentTime) < cuePoint.end);
-      });
-      if (currentCuePoint) {
+      const currentCuePoint = this._streamManager.previousCuePointForStreamTime(this._engine.currentTime);
+      if (this._engine.currentTime < currentCuePoint.end && currentCuePoint.played) {
         this.logger.debug('Ad already played - skipped');
         this._engine.currentTime = currentCuePoint.end;
       }
@@ -290,6 +279,17 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         }
       });
     }
+    this.eventManager.listen(this.player, EventType.SEEKED, () => {
+      if (this._snapback) {
+        const previousCuePoint = this._streamManager.previousCuePointForStreamTime(this.player.currentTime);
+        if (previousCuePoint && !previousCuePoint.played) {
+          this.logger.debug('snapback');
+          this._snapback = false;
+          this._savedSeekTime = this.player.currentTime;
+          this._engine.currentTime = previousCuePoint.start;
+        }
+      }
+    });
   }
 
   _init(): void {
@@ -313,6 +313,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._adStartedDispatched = false;
     this._adsCoverDivExists = false;
     this._playbackRate = 1;
+    this._snapback = this.config.snapback;
   }
 
   _loadImaDAILib(): Promise<*> {
@@ -529,6 +530,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     if (this._savedSeekTime) {
       this.player.currentTime = this._savedSeekTime;
       this._savedSeekTime = null;
+      this._snapback = this.config.snapback;
     }
     this._adStartedDispatched = false;
     this._hideAdsContainer();
