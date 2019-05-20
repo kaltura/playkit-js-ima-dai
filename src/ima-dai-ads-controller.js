@@ -32,14 +32,13 @@ class ImaDAIAdsController implements IAdsController {
 
   /**
    * Play an ad on demand.
-   * @param {string} adTagUrl - The ad tag url to play.
    * @public
    * @returns {void}
    * @instance
    * @memberof ImaDAIAdsController
    */
-  playAdNow(adTagUrl: string): void {
-    this._context.playAdNow(adTagUrl);
+  playAdNow(): void {
+    this._context.playAdNow();
   }
 }
 

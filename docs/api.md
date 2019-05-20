@@ -9,53 +9,52 @@
   * [Parameters][5]
   * [skipAd][6]
   * [playAdNow][7]
-    * [Parameters][8]
-* [ImaDAIEngineDecorator][9]
-  * [Parameters][10]
-  * [load][11]
-    * [Parameters][12]
-  * [dispatchEvent][13]
-    * [Parameters][14]
-  * [pause][15]
-  * [play][16]
-  * [reset][17]
-  * [destroy][18]
-  * [paused][19]
-  * [ended][20]
-  * [currentTime][21]
-    * [Parameters][22]
-  * [currentTime][23]
-  * [duration][24]
-* [ImaDAI][25]
-  * [Parameters][26]
-  * [getEngineDecorator][27]
-    * [Parameters][28]
-  * [getAdsController][29]
-  * [getStreamUrl][30]
-  * [skipAd][31]
-  * [pauseAd][32]
-  * [resumeAd][33]
-  * [getStreamTime][34]
-    * [Parameters][35]
-  * [getContentTime][36]
-    * [Parameters][37]
-  * [isAdBreak][38]
-  * [reset][39]
-  * [destroy][40]
-  * [isValid][41]
-  * [defaultConfig][42]
+* [ImaDAIEngineDecorator][8]
+  * [Parameters][9]
+  * [load][10]
+    * [Parameters][11]
+  * [dispatchEvent][12]
+    * [Parameters][13]
+  * [pause][14]
+  * [play][15]
+  * [reset][16]
+  * [destroy][17]
+  * [paused][18]
+  * [ended][19]
+  * [currentTime][20]
+    * [Parameters][21]
+  * [currentTime][22]
+  * [duration][23]
+* [ImaDAI][24]
+  * [Parameters][25]
+  * [getEngineDecorator][26]
+    * [Parameters][27]
+  * [getAdsController][28]
+  * [getStreamUrl][29]
+  * [skipAd][30]
+  * [pauseAd][31]
+  * [resumeAd][32]
+  * [getStreamTime][33]
+    * [Parameters][34]
+  * [getContentTime][35]
+    * [Parameters][36]
+  * [isAdBreak][37]
+  * [reset][38]
+  * [destroy][39]
+  * [isValid][40]
+  * [defaultConfig][41]
 
 ## ImaDAIConfigObject
 
-Type: [Object][43]
+Type: [Object][42]
 
 ### Parameters
 
-* `assetKey` **[string][44]** This is used to determine which stream should be played. The live stream request asset key is an identifier which can be [found in the DFP UI][45].
-* `contentSourceId` **[string][44]** Unique identifier for the publisher content, from a CMS. Required for on-demand streams.
-* `videoId` **[string][44]** Identifier for the video content source. Required for on-demand streams.
-* `snapback` **[boolean][46]** Prevent your viewers from seeking past your mid-roll ads. (optional, default `true`)
-* `debug` **[boolean][46]** Loads IMA-DAI SDK in debug mode. (optional, default `false`)
+* `assetKey` **[string][43]** This is used to determine which stream should be played. The live stream request asset key is an identifier which can be [found in the DFP UI][44].
+* `contentSourceId` **[string][43]** Unique identifier for the publisher content, from a CMS. Required for on-demand streams.
+* `videoId` **[string][43]** Identifier for the video content source. Required for on-demand streams.
+* `snapback` **[boolean][45]** Prevent your viewers from seeking past your mid-roll ads. (optional, default `true`)
+* `debug` **[boolean][45]** Loads IMA-DAI SDK in debug mode. (optional, default `false`)
 
 ### Examples
 
@@ -63,7 +62,7 @@ Type: [Object][43]
 plugins: {
   imadai: {
     assetKey: 'sN_IYUG8STe1ZzhIIE_ksA',
-    contentSourceId: '19463',
+    contentSourceId: '2477953',
     videoId: 'tears-of-steel'
   }
 }
@@ -75,7 +74,7 @@ Controller for ima dai plugin.
 
 ### Parameters
 
-* `context` **[ImaDAI][47]** The ima dai plugin context.
+* `context` **[ImaDAI][46]** The ima dai plugin context.
 
 ### skipAd
 
@@ -87,10 +86,6 @@ Returns **void**
 
 Play an ad on demand.
 
-#### Parameters
-
-* `adTagUrl` **[string][44]** The ad tag url to play.
-
 Returns **void**
 
 ## ImaDAIEngineDecorator
@@ -100,7 +95,7 @@ Engine decorator for ima dai plugin.
 ### Parameters
 
 * `engine` **IEngine** The HTML5 engine.
-* `plugin` **[ImaDAI][47]** The ima dai plugin.
+* `plugin` **[ImaDAI][46]** The ima dai plugin.
 
 ### load
 
@@ -108,9 +103,9 @@ Load media.
 
 #### Parameters
 
-* `startTime` **[number][48]** Optional time to start the video from.
+* `startTime` **[number][47]** Optional time to start the video from.
 
-Returns **[Promise][49]&lt;[Object][43]>** The loaded data
+Returns **[Promise][48]&lt;[Object][42]>** The loaded data
 
 ### dispatchEvent
 
@@ -118,9 +113,9 @@ Dispatch an event from this object.
 
 #### Parameters
 
-* `event` **[Event][50]** The event to be dispatched from this object.
+* `event` **[Event][49]** The event to be dispatched from this object.
 
-Returns **[boolean][46]** True if the default action was prevented.
+Returns **[boolean][45]** True if the default action was prevented.
 
 ### pause
 
@@ -150,13 +145,13 @@ Returns **void**
 
 Get paused state.
 
-Returns **[boolean][46]** The paused value of the engine.
+Returns **[boolean][45]** The paused value of the engine.
 
 ### ended
 
 Get ended state.
 
-Returns **[boolean][46]** The ended value of the engine.
+Returns **[boolean][45]** The ended value of the engine.
 
 ### currentTime
 
@@ -164,7 +159,7 @@ Set the current time in seconds.
 
 #### Parameters
 
-* `to` **[number][48]** The number to set in seconds.
+* `to` **[number][47]** The number to set in seconds.
 
 Returns **void**
 
@@ -172,13 +167,13 @@ Returns **void**
 
 Get the current time in seconds.
 
-Returns **[number][48]** The current playback time.
+Returns **[number][47]** The current playback time.
 
 ### duration
 
 Get the duration in seconds.
 
-Returns **[number][48]** The playback duration.
+Returns **[number][47]** The playback duration.
 
 ## ImaDAI
 
@@ -188,9 +183,9 @@ The ima-dai plugin.
 
 ### Parameters
 
-* `name` **[string][44]** The plugin name.
+* `name` **[string][43]** The plugin name.
 * `player` **Player** The player instance.
-* `config` **[ImaDAIConfigObject][51]** The plugin config.
+* `config` **[ImaDAIConfigObject][50]** The plugin config.
 
 ### getEngineDecorator
 
@@ -200,19 +195,19 @@ Gets the engine decorator.
 
 * `engine` **IEngine** The engine to decorate.
 
-Returns **[ImaDAIEngineDecorator][52]** The ads api.
+Returns **[ImaDAIEngineDecorator][51]** The ads api.
 
 ### getAdsController
 
 Gets the ads controller.
 
-Returns **[ImaDAIAdsController][53]** The ads api.
+Returns **[ImaDAIAdsController][52]** The ads api.
 
 ### getStreamUrl
 
 Gets the stream URL from ima-dai SDK.
 
-Returns **[Promise][49]&lt;[string][44]>** A promise of the URL to play.
+Returns **[Promise][48]&lt;[string][43]>** A promise of the URL to play.
 
 ### skipAd
 
@@ -238,9 +233,9 @@ Returns the stream time with ads for a given content time. Returns the given con
 
 #### Parameters
 
-* `contentTime` **[number][48]** the content time without any ads (in seconds).
+* `contentTime` **[number][47]** the content time without any ads (in seconds).
 
-Returns **[number][48]** The stream time that corresponds with the given content time once ads are inserted.
+Returns **[number][47]** The stream time that corresponds with the given content time once ads are inserted.
 
 ### getContentTime
 
@@ -248,15 +243,15 @@ Returns the content time without ads for a given stream time. Returns the given 
 
 #### Parameters
 
-* `streamTime` **[number][48]** the stream time with inserted ads (in seconds).
+* `streamTime` **[number][47]** the stream time with inserted ads (in seconds).
 
-Returns **[number][48]** The content time that corresponds with the given stream time once ads are removed.
+Returns **[number][47]** The content time that corresponds with the given stream time once ads are removed.
 
 ### isAdBreak
 
 Whether the player is in an ad break.
 
-Returns **[boolean][46]** Is ad break.
+Returns **[boolean][45]** Is ad break.
 
 ### reset
 
@@ -278,7 +273,7 @@ Whether the ima-dai plugin is valid.
 
 The default configuration of the plugin.
 
-Type: [Object][43]
+Type: [Object][42]
 
 [1]: #imadaiconfigobject
 [2]: #parameters
@@ -287,49 +282,48 @@ Type: [Object][43]
 [5]: #parameters-1
 [6]: #skipad
 [7]: #playadnow
-[8]: #parameters-2
-[9]: #imadaienginedecorator
-[10]: #parameters-3
-[11]: #load
-[12]: #parameters-4
-[13]: #dispatchevent
-[14]: #parameters-5
-[15]: #pause
-[16]: #play
-[17]: #reset
-[18]: #destroy
-[19]: #paused
-[20]: #ended
-[21]: #currenttime
-[22]: #parameters-6
-[23]: #currenttime-1
-[24]: #duration
-[25]: #imadai
-[26]: #parameters-7
-[27]: #getenginedecorator
-[28]: #parameters-8
-[29]: #getadscontroller
-[30]: #getstreamurl
-[31]: #skipad-1
-[32]: #pausead
-[33]: #resumead
-[34]: #getstreamtime
-[35]: #parameters-9
-[36]: #getcontenttime
-[37]: #parameters-10
-[38]: #isadbreak
-[39]: #reset-1
-[40]: #destroy-1
-[41]: #isvalid
-[42]: #defaultconfig
-[43]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
-[44]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
-[45]: https://goo.gl/wjL9DI
-[46]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
-[47]: #imadai
-[48]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
-[49]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[50]: https://developer.mozilla.org/docs/Web/API/Event
-[51]: #imadaiconfigobject
-[52]: #imadaienginedecorator
-[53]: #imadaiadscontroller
+[8]: #imadaienginedecorator
+[9]: #parameters-2
+[10]: #load
+[11]: #parameters-3
+[12]: #dispatchevent
+[13]: #parameters-4
+[14]: #pause
+[15]: #play
+[16]: #reset
+[17]: #destroy
+[18]: #paused
+[19]: #ended
+[20]: #currenttime
+[21]: #parameters-5
+[22]: #currenttime-1
+[23]: #duration
+[24]: #imadai
+[25]: #parameters-6
+[26]: #getenginedecorator
+[27]: #parameters-7
+[28]: #getadscontroller
+[29]: #getstreamurl
+[30]: #skipad-1
+[31]: #pausead
+[32]: #resumead
+[33]: #getstreamtime
+[34]: #parameters-8
+[35]: #getcontenttime
+[36]: #parameters-9
+[37]: #isadbreak
+[38]: #reset-1
+[39]: #destroy-1
+[40]: #isvalid
+[41]: #defaultconfig
+[42]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Object
+[43]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/String
+[44]: https://goo.gl/wjL9DI
+[45]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Boolean
+[46]: #imadai
+[47]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Number
+[48]: https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Promise
+[49]: https://developer.mozilla.org/docs/Web/API/Event
+[50]: #imadaiconfigobject
+[51]: #imadaienginedecorator
+[52]: #imadaiadscontroller
