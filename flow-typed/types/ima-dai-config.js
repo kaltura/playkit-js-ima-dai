@@ -10,7 +10,7 @@
  * plugins: {
  *   imadai: {
  *     assetKey: 'sN_IYUG8STe1ZzhIIE_ksA',
- *     contentSourceId: '19463',
+ *     contentSourceId: '2477953',
  *     videoId: 'tears-of-steel'
  *   }
  * }
