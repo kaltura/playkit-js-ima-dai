@@ -35,7 +35,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _playbackRate: number;
   _adsCoverDivExists: boolean;
   _snapback: boolean;
-  _ignoreAdEvent: boolean;
+  _ignorePreroll: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -312,7 +312,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._savedSeekTime = null;
     this._adStartedDispatched = false;
     this._adsCoverDivExists = false;
-    this._ignoreAdEvent = false;
+    this._ignorePreroll = false;
     this._playbackRate = 1;
     this._snapback = this.config.snapback;
   }
@@ -460,7 +460,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdProgress(event: Object): void {
-    if (this._ignoreAdEvent) {
+    if (this._ignorePreroll) {
       return;
     }
     const adProgressData = event.getStreamData().adProgressData;
@@ -476,7 +476,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdStarted(event: Object): void {
-    if (this._ignoreAdEvent) {
+    if (this._ignorePreroll) {
       return;
     }
     this._state = ImaDAIState.PLAYING;
@@ -634,8 +634,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _shouldIgnoreAdEvent(adBreakOptions: Object): boolean {
-    this._ignoreAdEvent = this.player.config.playback.startTime > 0 && adBreakOptions.type === AdBreakType.PRE;
-    return this._ignoreAdEvent;
+    this._ignorePreroll = this.player.config.playback.startTime > 0 && adBreakOptions.type === AdBreakType.PRE;
+    return this._ignorePreroll;
   }
 }
 
