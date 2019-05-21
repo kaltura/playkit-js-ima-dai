@@ -448,7 +448,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _onAdBreakStarted(): void {
     const adBreakOptions = this._getAdBreakOptions();
-    if (this._shouldIgnoreAdEvent(adBreakOptions)) {
+    if (this.__shouldIgnorePreroll(adBreakOptions)) {
       return;
     }
     this._adBreak = true;
@@ -633,7 +633,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     return Env.device.type || !this.player.isLive();
   }
 
-  _shouldIgnoreAdEvent(adBreakOptions: Object): boolean {
+  __shouldIgnorePreroll(adBreakOptions: Object): boolean {
     this._ignorePreroll = this.player.config.playback.startTime > 0 && adBreakOptions.type === AdBreakType.PRE;
     return this._ignorePreroll;
   }
