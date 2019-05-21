@@ -35,6 +35,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _playbackRate: number;
   _adsCoverDivExists: boolean;
   _snapback: boolean;
+  _ignoreAdEvent: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -311,6 +312,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._savedSeekTime = null;
     this._adStartedDispatched = false;
     this._adsCoverDivExists = false;
+    this._ignoreAdEvent = false;
     this._playbackRate = 1;
     this._snapback = this.config.snapback;
   }
@@ -445,8 +447,11 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdBreakStarted(): void {
-    this._adBreak = true;
     const adBreakOptions = this._getAdBreakOptions();
+    if (this._shouldIgnoreAdEvent(adBreakOptions)) {
+      return;
+    }
+    this._adBreak = true;
     Utils.Dom.setAttribute(this._adsContainerDiv, 'data-adtype', adBreakOptions.type);
     this._dispatchAdEvent(EventType.AD_BREAK_START, {adBreak: new AdBreak(adBreakOptions)});
     this._showAdsContainer();
@@ -455,6 +460,9 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdProgress(event: Object): void {
+    if (this._ignoreAdEvent) {
+      return;
+    }
     const adProgressData = event.getStreamData().adProgressData;
     this._dispatchAdEvent(EventType.AD_PROGRESS, {
       adProgress: {
@@ -468,10 +476,14 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdStarted(event: Object): void {
+    if (this._ignoreAdEvent) {
+      return;
+    }
     this._state = ImaDAIState.PLAYING;
     const adOptions = this._getAdOptions(event);
-    this._dispatchAdEvent(EventType.AD_LOADED, {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)});
-    this._dispatchAdEvent(EventType.AD_STARTED);
+    const payload = {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)};
+    this._dispatchAdEvent(EventType.AD_LOADED, payload);
+    this._dispatchAdEvent(EventType.AD_STARTED, payload);
     this._adStartedDispatched = true;
     if (this._engine.paused) {
       this.pauseAd();
@@ -619,6 +631,11 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _shouldPauseOnAdClick(): boolean {
     return Env.device.type || !this.player.isLive();
+  }
+
+  _shouldIgnoreAdEvent(adBreakOptions: Object): boolean {
+    this._ignoreAdEvent = this.player.config.playback.startTime > 0 && adBreakOptions.type === AdBreakType.PRE;
+    return this._ignoreAdEvent;
   }
 }
 
