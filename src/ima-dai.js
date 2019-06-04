@@ -618,7 +618,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _shouldPauseOnAdClick(): boolean {
-    return Env.device.type || !this.player.isLive();
+    return Env.isMobile || Env.isTablet || !this.player.isLive();
   }
 }
 
