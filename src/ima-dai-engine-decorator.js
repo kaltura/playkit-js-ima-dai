@@ -34,7 +34,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @instance
    * @memberof ImaDAIEngineDecorator
    */
-  load(startTime: ?number): Promise<Object> {
+  load(startTime: number): Promise<Object> {
     this._logger.debug('load', startTime);
     // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
@@ -43,7 +43,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
       .then(url => {
         this._logger.debug('Stream url has been fetched', url);
         this._engine.src = url;
-        return this._engine.load(startTime);
+        return this._engine.load(this._plugin.getStreamTime(startTime));
       })
       .catch(e => {
         this._logger.error(e);
