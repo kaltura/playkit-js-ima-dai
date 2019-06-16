@@ -86,11 +86,11 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   /**
    * Gets the ads controller.
    * @public
-   * @returns {ImaDAIAdsController} - The ads api.
+   * @returns {IAdsPluginController} - The ads api.
    * @instance
    * @memberof ImaDAI
    */
-  getAdsController(): ImaDAIAdsController {
+  getAdsController(): IAdsPluginController {
     return new ImaDAIAdsController(this);
   }
 
@@ -116,6 +116,15 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         }
       });
     });
+  }
+
+  /**
+   * Gets the plugin state.
+   * @returns {string} - The state.
+   * @public
+   */
+  get state(): string {
+    return this._state;
   }
 
   /**
@@ -517,7 +526,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         this.pauseAd();
       }
     }
-    this.dispatchEvent(EventType.AD_CLICKED);
+    this._dispatchAdEvent(EventType.AD_CLICKED);
   }
 
   _onAdBreakEnded(): void {
@@ -527,7 +536,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._dispatchAdEvent(EventType.AD_BREAK_END);
     const dispatchAllAdsCompleted = () => {
       this._state = ImaDAIState.DONE;
-      this._dispatchAdEvent(EventType.ALL_ADS_COMPLETED);
+      this._dispatchAdEvent(EventType.ADS_COMPLETED);
     };
     if (adBreak.type === AdBreakType.POST) {
       if (this._engine.ended) {
@@ -580,6 +589,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       adOptions.title = ad.getTitle();
       adOptions.position = podInfo.getAdPosition();
     }
+    adOptions.bumper = false;
     adOptions.linear = true;
     return adOptions;
   }
@@ -626,7 +636,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _dispatchAdEvent(type: string, payload?: Object): void {
     this.logger.debug(type.toUpperCase(), payload);
-    this.player.dispatchEvent(new FakeEvent(type, payload));
+    this.dispatchEvent(type, payload);
   }
 
   _shouldPauseOnAdClick(): boolean {
