@@ -589,6 +589,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       adOptions.title = ad.getTitle();
       adOptions.position = podInfo.getAdPosition();
     }
+    adOptions.bumper = false;
     adOptions.linear = true;
     return adOptions;
   }
