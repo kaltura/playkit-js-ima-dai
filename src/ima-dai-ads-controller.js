@@ -1,12 +1,13 @@
 // @flow
 import {ImaDAI} from './ima-dai';
+import {ImaDAIState} from './ima-dai-state';
 
 /**
  * Controller for ima dai plugin.
  * @class ImaDAIAdsController
  * @param {ImaDAI} context - The ima dai plugin context.
  */
-class ImaDAIAdsController implements IAdsController {
+class ImaDAIAdsController implements IAdsPluginController {
   /**
    * The plugin context.
    * @member
@@ -39,6 +40,36 @@ class ImaDAIAdsController implements IAdsController {
    */
   playAdNow(): void {
     this._context.playAdNow();
+  }
+
+  /**
+   * On playback ended handler.
+   * @public
+   * @returns {Promise<void>} - complete promise
+   * @memberof ImaDAIAdsController
+   */
+  onPlaybackEnded(): Promise<void> {
+    return Promise.resolve();
+  }
+
+  /**
+   * Whether this ads controller is active
+   * @public
+   * @returns {boolean} - is active
+   * @memberof ImaDAIAdsController
+   */
+  get active(): boolean {
+    return this._context.state === ImaDAIState.PLAYING || this._context.state === ImaDAIState.PAUSED;
+  }
+
+  /**
+   * Whether this ads controller is done
+   * @public
+   * @returns {boolean} - is done
+   * @memberof ImaDAIAdsController
+   */
+  get done(): boolean {
+    return this._context.state === ImaDAIState.DONE;
   }
 }
 
