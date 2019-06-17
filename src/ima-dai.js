@@ -639,4 +639,4 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 }
 
-export {ImaDAI};
+export {ImaDAI as Plugin};
