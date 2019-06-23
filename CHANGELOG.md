@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.2.1"></a>
+## [0.2.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.2.0...v0.2.1) (2019-06-23)
+
+
+### Bug Fixes
+
+* **FEC-9192:** post bumper doesn't play ([#18](https://github.com/kaltura/playkit-js-ima-dai/issues/18)) ([0a8301f](https://github.com/kaltura/playkit-js-ima-dai/commit/0a8301f))
+
+
+
 <a name="0.2.0"></a>
 # [0.2.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.6...v0.2.0) (2019-06-17)
 
