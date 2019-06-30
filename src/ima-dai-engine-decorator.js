@@ -1,5 +1,5 @@
 // @flow
-import {AdBreakType, AdEventType, BaseEngineDecorator, EventManager, FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
+import {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
 import {ImaDAI} from './ima-dai';
 import {ImaDAIEventManager} from './ima-dai-event-manager';
 
@@ -9,20 +9,34 @@ import {ImaDAIEventManager} from './ima-dai-event-manager';
  * @param {IEngine} engine - The HTML5 engine.
  * @param {ImaDAI} plugin - The ima dai plugin.
  */
-class ImaDAIEngineDecorator extends BaseEngineDecorator {
+class ImaDAIEngineDecorator {
   _plugin: ImaDAI;
   _logger: Object;
-  _pluginDestroyed: boolean;
+  _engine: IEngine;
+  _eventManager: EventManager;
+  _daiEventManager: ImaDAIEventManager;
+  _active: boolean;
+  _loadStart: boolean;
   _contentEnded: boolean;
 
-  constructor(engine: IEngine, plugin: ImaDAI) {
-    super(engine);
+  constructor(engine: IEngine, plugin: ImaDAI, dispatchEventHandler: Function) {
+    this._eventManager = new EventManager();
+    this._engine = engine;
     this._plugin = plugin;
-    this._pluginDestroyed = false;
-    this._contentEnded = false;
-    this._daiEventManager = new ImaDAIEventManager(plugin, super.dispatchEvent.bind(this));
-    this._attachListeners();
+    this._daiEventManager = new ImaDAIEventManager(plugin, dispatchEventHandler);
     this._logger = getLogger('ImaDAIEngineDecorator');
+    this._initMembers();
+    this._attachListeners();
+  }
+
+  _initMembers(): void {
+    this._active = true;
+    this._loadStart = false;
+    this._contentEnded = false;
+  }
+
+  get active(): boolean {
+    return this._active;
   }
 
   /**
@@ -34,7 +48,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @instance
    * @memberof ImaDAIEngineDecorator
    */
-  load(startTime: number): Promise<Object> {
+  load(startTime: ?number): Promise<Object> {
     this._logger.debug('load', startTime);
     // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
@@ -42,14 +56,16 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
       .getStreamUrl()
       .then(url => {
         this._logger.debug('Stream url has been fetched', url);
+        this._loadStart = true;
         this._engine.src = url;
         return this._engine.load(this._plugin.getStreamTime(startTime));
       })
       .catch(e => {
         this._logger.error(e);
         this._plugin.destroy();
-        this._pluginDestroyed = true;
-        return this._engine.load(startTime);
+        const loadPromise = this._engine.load(startTime);
+        this._active = false;
+        return loadPromise;
       });
   }
 
@@ -62,9 +78,6 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   dispatchEvent(event: FakeEvent): ?boolean {
-    if (this._pluginDestroyed) {
-      return super.dispatchEvent(event);
-    }
     return this._daiEventManager.dispatchEvent(event);
   }
 
@@ -77,14 +90,10 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   pause(): void {
-    if (this._pluginDestroyed) {
-      super.pause();
-    } else {
-      if (this._plugin.isAdBreak()) {
-        this._plugin.pauseAd();
-      }
-      this._engine.pause();
+    if (this._plugin.isAdBreak()) {
+      this._plugin.pauseAd();
     }
+    this._engine.pause();
   }
 
   /**
@@ -96,14 +105,10 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   play(): void {
-    if (this._pluginDestroyed) {
-      super.play();
-    } else {
-      if (this._plugin.isAdBreak()) {
-        this._plugin.resumeAd();
-      }
-      this._engine.play();
+    if (this._plugin.isAdBreak()) {
+      this._plugin.resumeAd();
     }
+    this._engine.play();
   }
 
   /**
@@ -115,10 +120,10 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   reset(): void {
-    this._pluginDestroyed = false;
     this._daiEventManager.reset();
     this._engine.reset();
-    this._contentEnded = false;
+    this._eventManager.removeAll();
+    this._initMembers();
     this._attachListeners();
   }
 
@@ -131,8 +136,8 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   destroy(): void {
-    this._pluginDestroyed = false;
     this._daiEventManager.destroy();
+    this._eventManager.destroy();
     this._engine.destroy();
   }
 
@@ -145,9 +150,6 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   get paused(): boolean {
-    if (this._pluginDestroyed) {
-      return super.paused;
-    }
     return this._plugin.isAdBreak();
   }
 
@@ -160,7 +162,7 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   get ended(): boolean {
-    return super.ended || (!this._pluginDestroyed && this._contentEnded);
+    return this._contentEnded;
   }
 
   /**
@@ -173,13 +175,9 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   set currentTime(to: number): void {
-    if (this._pluginDestroyed) {
-      super.currentTime = to;
-    } else {
-      const streamTime = this._plugin.getStreamTime(to);
-      if (streamTime) {
-        this._engine.currentTime = streamTime;
-      }
+    const streamTime = this._plugin.getStreamTime(to);
+    if (streamTime) {
+      this._engine.currentTime = streamTime;
     }
   }
 
@@ -191,11 +189,8 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @instance
    * @memberof ImaDAIEngineDecorator
    */
-  get currentTime(): ?number {
-    if (this._pluginDestroyed) {
-      return super.currentTime;
-    }
-    return this._plugin.getContentTime(this._engine.currentTime);
+  get currentTime(): number {
+    return this._plugin.getContentTime(this._engine.currentTime) || 0;
   }
 
   /**
@@ -206,22 +201,24 @@ class ImaDAIEngineDecorator extends BaseEngineDecorator {
    * @instance
    * @memberof ImaDAIEngineDecorator
    */
-  get duration(): ?number {
-    if (this._pluginDestroyed) {
-      return super.duration;
-    }
-    return this._plugin.getContentTime(this._engine.duration);
+  get duration(): number {
+    return this._plugin.getContentTime(this._engine.duration) || NaN;
   }
 
   _attachListeners(): void {
-    this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
     this._eventManager.listen(this._plugin.player, Html5EventType.PLAY, () => !this._plugin.isAdBreak() && (this._contentEnded = false));
+    this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
+    this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_BREAK_END, () => (this._active = true));
   }
 
   _onAdBreakStart(event: EventManager): void {
     const adBreak = event.payload.adBreak;
     if (adBreak.type === AdBreakType.POST) {
       this._contentEnded = true;
+    }
+    if (!this._loadStart) {
+      // preroll from another ad plugin (e.g. bumper)
+      this._active = false;
     }
   }
 }

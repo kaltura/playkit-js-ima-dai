@@ -73,14 +73,16 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   /**
    * Gets the engine decorator.
    * @param {IEngine} engine - The engine to decorate.
+   * @param {Function} dispatchEventHandler - A dispatch event handler
    * @public
-   * @returns {ImaDAIEngineDecorator} - The ads api.
+   * @returns {IEngine} - The ads api.
    * @instance
    * @memberof ImaDAI
    */
-  getEngineDecorator(engine: IEngine): ImaDAIEngineDecorator {
+  getEngineDecorator(engine: IEngine, dispatchEventHandler: Function): IEngine {
     this._engine = engine;
-    return new ImaDAIEngineDecorator(engine, this);
+    // $FlowFixMe
+    return new ImaDAIEngineDecorator(engine, this, dispatchEventHandler);
   }
 
   /**
@@ -187,7 +189,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
    * @instance
    * @memberof ImaDAI
    */
-  getStreamTime(contentTime: number): number {
+  getStreamTime(contentTime: ?number): number {
     return this._streamManager ? this._streamManager.streamTimeForContentTime(contentTime) : 0;
   }
 
@@ -199,7 +201,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
    * @instance
    * @memberof ImaDAI
    */
-  getContentTime(streamTime: number): ?number {
+  getContentTime(streamTime: ?number): ?number {
     if (this._streamManager) {
       return this._streamManager.contentTimeForStreamTime(streamTime);
     }
