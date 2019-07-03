@@ -75,13 +75,12 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
    * @param {IEngine} engine - The engine to decorate.
    * @param {Function} dispatchEventHandler - A dispatch event handler
    * @public
-   * @returns {IEngine} - The ads api.
+   * @returns {IEngineDecorator} - The ads api.
    * @instance
    * @memberof ImaDAI
    */
-  getEngineDecorator(engine: IEngine, dispatchEventHandler: Function): IEngine {
+  getEngineDecorator(engine: IEngine, dispatchEventHandler: Function): IEngineDecorator {
     this._engine = engine;
-    // $FlowFixMe
     return new ImaDAIEngineDecorator(engine, this, dispatchEventHandler);
   }
 

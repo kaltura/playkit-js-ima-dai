@@ -8,8 +8,10 @@ import {ImaDAIEventManager} from './ima-dai-event-manager';
  * @class ImaDAIEngineDecorator
  * @param {IEngine} engine - The HTML5 engine.
  * @param {ImaDAI} plugin - The ima dai plugin.
+ * @param {Function} dispatchEventHandler - A dispatch event handler
+ * @implements {IEngineDecorator}
  */
-class ImaDAIEngineDecorator {
+class ImaDAIEngineDecorator implements IEngineDecorator {
   _plugin: ImaDAI;
   _logger: Object;
   _engine: IEngine;
@@ -77,7 +79,7 @@ class ImaDAIEngineDecorator {
    * @instance
    * @memberof ImaDAIEngineDecorator
    */
-  dispatchEvent(event: FakeEvent): ?boolean {
+  dispatchEvent(event: FakeEvent): boolean {
     return this._daiEventManager.dispatchEvent(event);
   }
 
