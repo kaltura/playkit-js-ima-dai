@@ -23,15 +23,16 @@ class ImaDAIEventManager {
     this._attachListeners();
   }
 
-  dispatchEvent(event: FakeEvent): ?boolean {
+  dispatchEvent(event: FakeEvent): boolean {
     if (this._stopEventDispatchingMap[event.type]) {
       this._logger.debug('Event dispatching terminated', event);
-      return;
+      return event.defaultPrevented;
     }
     if (this._parallelEvents.includes(event.type) || !this._plugin.isAdBreak() || !Object.values(Html5EventType).includes(event.type)) {
       return this._dispatchEventHandler(event);
     } else {
       this._queue.push(event);
+      return event.defaultPrevented;
     }
   }
 
