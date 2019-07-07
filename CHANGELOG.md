@@ -2,6 +2,24 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.0"></a>
+# [0.3.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.6...v0.3.0) (2019-07-07)
+
+
+### Bug Fixes
+
+* **FEC-9177:** Smart TV showed as mobile device ([#16](https://github.com/kaltura/playkit-js-ima-dai/issues/16)) ([17845e6](https://github.com/kaltura/playkit-js-ima-dai/commit/17845e6))
+* **FEC-9192:** post bumper doesn't play ([#18](https://github.com/kaltura/playkit-js-ima-dai/issues/18)) ([0a8301f](https://github.com/kaltura/playkit-js-ima-dai/commit/0a8301f))
+
+
+### Features
+
+* **FEC-8631:** bumper plugin ([#17](https://github.com/kaltura/playkit-js-ima-dai/issues/17)) ([38cad29](https://github.com/kaltura/playkit-js-ima-dai/commit/38cad29))
+* **FEC-9046,FEC-9087:** start time support ([#15](https://github.com/kaltura/playkit-js-ima-dai/issues/15)) ([c862b4b](https://github.com/kaltura/playkit-js-ima-dai/commit/c862b4b))
+* **FEC-9145:** support non sibling video tags ([#19](https://github.com/kaltura/playkit-js-ima-dai/issues/19)) ([b991825](https://github.com/kaltura/playkit-js-ima-dai/commit/b991825))
+
+
+
 <a name="0.2.1"></a>
 ## [0.2.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.2.0...v0.2.1) (2019-06-23)
 
