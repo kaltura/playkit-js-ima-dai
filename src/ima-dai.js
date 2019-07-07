@@ -650,4 +650,4 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 }
 
-export {ImaDAI as Plugin};
+export {ImaDAI};

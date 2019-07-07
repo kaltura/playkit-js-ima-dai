@@ -1,6 +1,6 @@
 // @flow
 import {registerPlugin} from '@playkit-js/playkit-js';
-import {Plugin} from './ima-dai';
+import {ImaDAI as Plugin} from './ima-dai';
 
 declare var __VERSION__: string;
 declare var __NAME__: string;
