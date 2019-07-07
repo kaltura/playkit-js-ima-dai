@@ -19,7 +19,7 @@ module.exports = {
     filename: '[name].js',
     library: ['playkit', 'plugins', 'imadai'],
     libraryTarget: 'umd',
-    devtoolModuleFilenameTemplate: './plugins/imadai/[resource-path]'
+    devtoolModuleFilenameTemplate: './playkit/plugins/imadai/[resource-path]'
   },
   devtool: 'source-map',
   plugins: plugins,
