@@ -328,10 +328,11 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _loadImaDAILib(): Promise<*> {
-    const protocol = /^(https?:)/i.test(document.location.protocol) ? document.location.protocol : 'https:';
     return (this._isImaDAILibLoaded()
       ? Promise.resolve()
-      : Utils.Dom.loadScriptAsync(this.config.debug ? protocol + ImaDAI.IMA_DAI_SDK_DEBUG_LIB_URL : protocol + ImaDAI.IMA_DAI_SDK_LIB_URL)
+      : Utils.Dom.loadScriptAsync(
+          this.config.debug ? Env.appProtocol + ImaDAI.IMA_DAI_SDK_DEBUG_LIB_URL : Env.appProtocol + ImaDAI.IMA_DAI_SDK_LIB_URL
+        )
     ).then(() => (this._sdk = window.google.ima.dai));
   }
 
