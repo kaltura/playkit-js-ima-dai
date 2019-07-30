@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.1"></a>
+## [0.3.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.3.0...v0.3.1) (2019-07-21)
+
+
+### Bug Fixes
+
+* **FEC-9237:** add app protocol for ima-dai plugin ([#22](https://github.com/kaltura/playkit-js-ima-dai/issues/22)) ([f8f39e8](https://github.com/kaltura/playkit-js-ima-dai/commit/f8f39e8))
+
+
+
 <a name="0.3.0"></a>
 # [0.3.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.1.6...v0.3.0) (2019-07-07)
 
