@@ -359,9 +359,9 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _attachEngineListeners(): void {
-    this.eventManager.listen(this._engine, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
-    this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
-    this.eventManager.listen(this._engine, 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
+    this.eventManager.listen(this.player.getVideoElement(), EventType.LOADED_METADATA, () => this._onLoadedMetadata());
+    this.eventManager.listen(this.player.getVideoElement(), EventType.VOLUME_CHANGE, () => this._onVolumeChange());
+    this.eventManager.listen(this.player.getVideoElement(), 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
   }
 
   _onVolumeChange(): void {
@@ -541,7 +541,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       if (this._engine.ended) {
         dispatchAllAdsCompleted();
       } else {
-        this.eventManager.listenOnce(this._engine, EventType.ENDED, dispatchAllAdsCompleted);
+        this.eventManager.listenOnce(this.player.getVideoElement(), EventType.ENDED, dispatchAllAdsCompleted);
       }
     } else if (allCuesPlayed) {
       dispatchAllAdsCompleted();
