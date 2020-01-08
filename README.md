@@ -59,7 +59,7 @@ var config = {
   },
   ...
   plugins: {
-    ima-dai: {
+    imadai: {
         contentSourceId: '2477953',
         videoId: 'tears-of-steel'
     }
