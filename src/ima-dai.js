@@ -300,6 +300,14 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         }
       }
     });
+    this.eventManager.listen(this.player, EventType.PLAY_FAILED, () => {
+      if (this._adBreak) {
+        this._onAdBreakEnded();
+        this.eventManager.listenOnce(this.player, EventType.FIRST_PLAY, () => {
+          this._onAdBreakStarted();
+        });
+      }
+    });
   }
 
   _init(): void {
@@ -529,31 +537,33 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdBreakEnded(): void {
-    this._adBreak = false;
-    const allCuesPlayed = !this._cuePoints.find(cuePoints => !cuePoints.played);
-    const adBreak = this.player.ads.getAdBreak();
-    this._dispatchAdEvent(EventType.AD_BREAK_END);
-    const dispatchAllAdsCompleted = () => {
-      this._state = ImaDAIState.DONE;
-      this._dispatchAdEvent(EventType.ADS_COMPLETED);
-    };
-    if (adBreak.type === AdBreakType.POST) {
-      if (this._engine.ended) {
+    if (this._adBreak) {
+      this._adBreak = false;
+      const allCuesPlayed = !this._cuePoints.find(cuePoints => !cuePoints.played);
+      const adBreak = this.player.ads.getAdBreak();
+      this._dispatchAdEvent(EventType.AD_BREAK_END);
+      const dispatchAllAdsCompleted = () => {
+        this._state = ImaDAIState.DONE;
+        this._dispatchAdEvent(EventType.ADS_COMPLETED);
+      };
+      if (adBreak.type === AdBreakType.POST) {
+        if (this._engine.ended) {
+          dispatchAllAdsCompleted();
+        } else {
+          this.eventManager.listenOnce(this._engine, EventType.ENDED, dispatchAllAdsCompleted);
+        }
+      } else if (allCuesPlayed) {
         dispatchAllAdsCompleted();
-      } else {
-        this.eventManager.listenOnce(this._engine, EventType.ENDED, dispatchAllAdsCompleted);
       }
-    } else if (allCuesPlayed) {
-      dispatchAllAdsCompleted();
+      if (this._savedSeekTime) {
+        this.player.currentTime = this._savedSeekTime;
+        this._savedSeekTime = null;
+        this._snapback = this.config.snapback;
+      }
+      this._adStartedDispatched = false;
+      this._hideAdsContainer();
+      this._playbackRate !== 1 && (this.player.playbackRate = this._playbackRate);
     }
-    if (this._savedSeekTime) {
-      this.player.currentTime = this._savedSeekTime;
-      this._savedSeekTime = null;
-      this._snapback = this.config.snapback;
-    }
-    this._adStartedDispatched = false;
-    this._hideAdsContainer();
-    this._playbackRate !== 1 && (this.player.playbackRate = this._playbackRate);
   }
 
   _getAdBreakOptions(): Object {

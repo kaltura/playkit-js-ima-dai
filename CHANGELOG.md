@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="0.3.3"></a>
+## [0.3.3](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.3.2...v0.3.3) (2020-01-29)
+
+
+
+<a name="0.3.2"></a>
+## [0.3.2](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.3.1...v0.3.2) (2020-01-29)
+
+
+### Bug Fixes
+
+* **FEC-9515:** the player gets stuck when autoplay is failed ([#32](https://github.com/kaltura/playkit-js-ima-dai/issues/32)) ([b9d4c65](https://github.com/kaltura/playkit-js-ima-dai/commit/b9d4c65))
+
+
+
 <a name="0.3.1"></a>
 ## [0.3.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.3.0...v0.3.1) (2019-07-21)
 
