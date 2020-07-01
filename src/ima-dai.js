@@ -445,6 +445,9 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     if (this.config.authToken) {
       streamRequest.authToken = this.config.authToken;
     }
+    if (this.config.format) {
+      streamRequest.format = this.config.format;
+    }
   }
 
   _onLoaded(event: Object): void {
