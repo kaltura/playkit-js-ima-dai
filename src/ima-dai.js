@@ -417,37 +417,20 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _requestVODStream(): void {
     const streamRequest = new this._sdk.api.VODStreamRequest();
-    streamRequest.contentSourceId = this.config.contentSourceId;
-    streamRequest.videoId = this.config.videoId;
-    this._maybeAddStreamRequestCommonParams(streamRequest);
+    this._assignStreamRequestParams(streamRequest);
     this.logger.debug('Request VOD stream', streamRequest);
     this._streamManager.requestStream(streamRequest);
   }
 
   _requestLiveStream(): void {
     const streamRequest = new this._sdk.api.LiveStreamRequest();
-    streamRequest.assetKey = this.config.assetKey;
-    this._maybeAddStreamRequestCommonParams(streamRequest);
+    this._assignStreamRequestParams(streamRequest);
     this.logger.debug('Request live stream', streamRequest);
     this._streamManager.requestStream(streamRequest);
   }
 
-  _maybeAddStreamRequestCommonParams(streamRequest: Object): void {
-    if (this.config.apiKey) {
-      streamRequest.apiKey = this.config.apiKey;
-    }
-    if (this.config.adTagParameters) {
-      streamRequest.adTagParameters = this.config.adTagParameters;
-    }
-    if (this.config.streamActivityMonitorId) {
-      streamRequest.streamActivityMonitorId = this.config.streamActivityMonitorId;
-    }
-    if (this.config.authToken) {
-      streamRequest.authToken = this.config.authToken;
-    }
-    if (this.config.format) {
-      streamRequest.format = this.config.format;
-    }
+  _assignStreamRequestParams(streamRequest: Object): void {
+    Object.keys(streamRequest).forEach(key => (streamRequest[key] = this.config[key] || streamRequest[key]));
   }
 
   _onLoaded(event: Object): void {
