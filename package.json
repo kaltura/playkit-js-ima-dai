@@ -1,6 +1,6 @@
 {
   "name": "@playkit-js/playkit-js-ima-dai",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "keywords": ["ad", "ads", "dai", "html5 player", "ima", "kaltura", "monetization", "player", "playkit-js", "playkit-js-ima", "vast", "vmap"],
   "homepage": "https://github.com/kaltura/playkit-js-ima-dai",
   "bugs": {
