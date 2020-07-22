@@ -6,6 +6,11 @@
  * @param {string} videoId - Identifier for the video content source. Required for on-demand streams.
  * @param {boolean} [snapback=true] - Prevent your viewers from seeking past your mid-roll ads.
  * @param {boolean} [debug=false] - Loads IMA-DAI SDK in debug mode.
+ * @param {Object} adTagParameters - You can override a limited set of ad tag parameters on your stream request. {@link https://support.google.com/dfp_premium/answer/7320899|Supply targeting parameters to your stream} provides more information. You can use the dai-ot and dai-ov parameters for stream variant preference. See {@link https://support.google.com/dfp_premium/answer/7320898|Override Stream Variant Parameters} for more information.
+ * @param {string} apiKey - The stream request API key. It's configured through the {@link https://support.google.com/admanager/answer/6381445|DFP Admin UI}. and provided to the publisher to unlock their content. It verifies the applications that are attempting to access the content.
+ * @param {string} streamActivityMonitorId - The ID to be used to debug the stream with the stream activity monitor.
+ * @param {string} authToken - The stream request authorization token. Used in place of the API key for stricter content authorization. The publisher can control individual content streams authorizations based on this token.
+ * @param {string} [format='hls'] - The stream format to request. (optional) Accepts the following string values - hls, dash (Values must be lowercase.).
  * @example
  * plugins: {
  *   imadai: {
@@ -21,7 +26,12 @@ type _ImaDAIConfigObject = {
   contentSourceId: string,
   videoId: string,
   snapback: boolean,
-  debug: boolean
+  debug: boolean,
+  adTagParameters: Object,
+  apiKey: string,
+  streamActivityMonitorId: string,
+  authToken: string,
+  format: string
 };
 
 declare type ImaDAIConfigObject = _ImaDAIConfigObject;
