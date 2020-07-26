@@ -48,32 +48,35 @@ yarn run build
 Finally, add the bundle as a script tag in your page, and initialize the player
 
 ```html
-<script type="text/javascript" src="/PATH/TO/FILE/kaltura-{ovp/ott}-player.js"></script>    <!--PlayKit player-->
-<script type="text/javascript" src="/PATH/TO/FILE/playkit-ima-dai.js"></script>             <!--PlayKit IMA-DAI plugin-->
+<script type="text/javascript" src="/PATH/TO/FILE/kaltura-{ovp/ott}-player.js"></script>
+<!--PlayKit player-->
+<script type="text/javascript" src="/PATH/TO/FILE/playkit-ima-dai.js"></script>
+<!--PlayKit IMA-DAI plugin-->
 <div id="player-placeholder" style="height:360px; width:640px">
-<script type="text/javascript">
-var config = {
-  provider: {
-    partnerId: {YOUR_PARTNER_ID}
-    ...
-  },
-  ...
-  plugins: {
-    imadai: {
-        contentSourceId: '2477953',
-        videoId: 'tears-of-steel'
-    }
-  }
-  ...
-};
-var player = KalturaPlayer.setup(config);
-player.play();
-</script>
+  <script type="text/javascript">
+    var config = {
+      provider: {
+        partnerId: {YOUR_PARTNER_ID}
+        ...
+      },
+      ...
+      plugins: {
+        imadai: {
+            contentSourceId: '2477953',
+            videoId: 'tears-of-steel'
+        }
+      }
+      ...
+    };
+    var player = KalturaPlayer.setup(config);
+    player.play();
+  </script>
+</div>
 ```
 
 ## Documentation
 
-* **[Configuration & API](docs/api.md)**
+- **[Configuration & API](docs/api.md)**
 
 ## Running the tests
 
