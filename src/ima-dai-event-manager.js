@@ -1,7 +1,9 @@
 // @flow
-import {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
+import {core} from 'kaltura-player-js';
 import {ImaDAIEventQueue} from './ima-dai-event-queue';
 import {ImaDAI} from './ima-dai';
+
+const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} = core;
 
 class ImaDAIEventManager {
   _logger: Object;

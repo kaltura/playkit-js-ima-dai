@@ -1,8 +1,9 @@
 // @flow
-import {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
+import {core} from 'kaltura-player-js';
 import {ImaDAI} from './ima-dai';
 import {ImaDAIEventManager} from './ima-dai-event-manager';
 
+const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} = core;
 /**
  * Engine decorator for ima dai plugin.
  * @class ImaDAIEngineDecorator
