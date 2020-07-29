@@ -105,17 +105,21 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   getStreamUrl(): Promise<string> {
     this.logger.debug('Get stream url');
     return new Promise((resolve, reject) => {
-      return this._loadPromise.then(() => {
-        this._state = ImaDAIState.LOADING;
-        this._resolveLoad = resolve;
-        this._rejectLoad = reject;
-        this._initStreamManager();
-        if (this.player.isLive()) {
-          this._requestLiveStream();
-        } else {
-          this._requestVODStream();
-        }
-      });
+      return this._loadPromise
+        .then(() => {
+          this._state = ImaDAIState.LOADING;
+          this._resolveLoad = resolve;
+          this._rejectLoad = reject;
+          this._initStreamManager();
+          if (this.player.isLive()) {
+            this._requestLiveStream();
+          } else {
+            this._requestVODStream();
+          }
+        })
+        .catch(e => {
+          reject(e);
+        });
     });
   }
 
@@ -319,6 +323,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         this._loadPromise.resolve();
       })
       .catch(e => {
+        this.logger.error('IMA DAI lib failed to load');
         this._loadPromise.reject(e);
       });
   }
@@ -337,7 +342,14 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _loadImaDAILib(): Promise<*> {
     const imaDaiSdkUrl = Utils.Http.protocol + (this.config.debug ? ImaDAI.IMA_DAI_SDK_DEBUG_LIB_URL : ImaDAI.IMA_DAI_SDK_LIB_URL);
-    return (this._isImaDAILibLoaded() ? Promise.resolve() : Utils.Dom.loadScriptAsync(imaDaiSdkUrl)).then(() => (this._sdk = window.google.ima.dai));
+    return (this._isImaDAILibLoaded() ? Promise.resolve() : Utils.Dom.loadScriptAsync(imaDaiSdkUrl))
+      .then(() => {
+        this._sdk = window.google.ima.dai;
+      })
+      .catch(e => {
+        this.logger.error(`failed loading ${imaDaiSdkUrl} - check if an ad blocker is active`);
+        return Promise.reject(e);
+      });
   }
 
   _isImaDAILibLoaded(): boolean {
