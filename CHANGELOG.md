@@ -1,6 +1,22 @@
-# Change Log
+# Changelog
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
+
+## [0.5.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.4.0...v0.5.0) (2020-08-05)
+
+
+### Bug Fixes
+
+* **FEC-10288:** player is giving incorrect player.paused value during dai playback ([#43](https://github.com/kaltura/playkit-js-ima-dai/issues/43)) ([0d591f9](https://github.com/kaltura/playkit-js-ima-dai/commit/0d591f9))
+* **FEC-10344:** IMA DAI breaks playback when ad blocker is enabled ([#42](https://github.com/kaltura/playkit-js-ima-dai/issues/42)) ([7bca1c2](https://github.com/kaltura/playkit-js-ima-dai/commit/7bca1c2))
+
+
+### Features
+
+* **FEC-10057:** move the plugin manager to kaltura player ([#41](https://github.com/kaltura/playkit-js-ima-dai/issues/41)) ([3380a69](https://github.com/kaltura/playkit-js-ima-dai/commit/3380a69))
+* **FEC-10290:** upgrade NPM packages ([#40](https://github.com/kaltura/playkit-js-ima-dai/issues/40)) ([261fc5e](https://github.com/kaltura/playkit-js-ima-dai/commit/261fc5e))
+
+
 
 <a name="0.4.0"></a>
 # [0.4.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v0.3.3...v0.4.0) (2020-07-07)
