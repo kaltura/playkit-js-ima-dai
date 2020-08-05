@@ -153,7 +153,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
    * @memberof ImaDAIEngineDecorator
    */
   get paused(): boolean {
-    return this._plugin.isAdBreak();
+    return this._plugin.isAdBreak() ? true : this._engine.paused;
   }
 
   /**
