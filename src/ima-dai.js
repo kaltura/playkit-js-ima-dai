@@ -1,10 +1,11 @@
 // @flow
-import {Ad, AdBreak, AdBreakType, BasePlugin, EventType, FakeEvent, Utils, Env} from '@playkit-js/playkit-js';
+import {core, BasePlugin} from 'kaltura-player-js';
 import {ImaDAIState} from './ima-dai-state';
 import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
 import {ImaDAIAdsController} from './ima-dai-ads-controller';
 import './assets/style.css';
 
+const {Ad, AdBreak, AdBreakType, EventType, FakeEvent, Utils, Env} = core;
 const ADS_CONTAINER_CLASS: string = 'playkit-dai-ads-container';
 const ADS_COVER_CLASS: string = 'playkit-dai-ads-cover';
 

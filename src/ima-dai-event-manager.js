@@ -1,7 +1,9 @@
 // @flow
-import {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
+import {core} from 'kaltura-player-js';
 import {ImaDAIEventQueue} from './ima-dai-event-queue';
 import {ImaDAI} from './ima-dai';
+
+const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} = core;
 
 class ImaDAIEventManager {
   _logger: Object;
@@ -11,7 +13,9 @@ class ImaDAIEventManager {
   _eventManager: EventManager;
   _parallelEvents: Array<string> = [Html5EventType.VOLUME_CHANGE, Html5EventType.SEEKED];
   _stopEventDispatchingMap: {[event: string]: boolean} = {
-    [Html5EventType.ENDED]: false
+    [Html5EventType.ENDED]: false,
+    [Html5EventType.SEEKING]: false,
+    [Html5EventType.SEEKED]: false
   };
 
   constructor(plugin: ImaDAI, dispatchEventHandler: Function) {
@@ -38,6 +42,8 @@ class ImaDAIEventManager {
 
   reset(): void {
     this._stopEventDispatchingMap[Html5EventType.ENDED] = false;
+    this._stopEventDispatchingMap[Html5EventType.SEEKING] = false;
+    this._stopEventDispatchingMap[Html5EventType.SEEKED] = false;
     this._queue.empty();
     this._eventManager.removeAll();
     this._attachListeners();
@@ -56,6 +62,10 @@ class ImaDAIEventManager {
       Html5EventType.PLAY,
       () => !this._plugin.isAdBreak() && (this._stopEventDispatchingMap[Html5EventType.ENDED] = false)
     );
+    this._eventManager.listen(this._plugin.player, Html5EventType.PAUSE, () => {
+      this._stopEventDispatchingMap[Html5EventType.SEEKING] = false;
+      this._stopEventDispatchingMap[Html5EventType.SEEKED] = false;
+    });
   }
 
   _onAdBreakStart(event: EventManager): void {
@@ -64,6 +74,9 @@ class ImaDAIEventManager {
       this._logger.debug('Postroll is playing, trigger ENDED event');
       this._stopEventDispatchingMap[Html5EventType.ENDED] = true;
       this._dispatchEventHandler(new FakeEvent(Html5EventType.ENDED));
+      // Silence the seek events caused by the sdk once the postroll is done.
+      this._stopEventDispatchingMap[Html5EventType.SEEKING] = true;
+      this._stopEventDispatchingMap[Html5EventType.SEEKED] = true;
     }
   }
 

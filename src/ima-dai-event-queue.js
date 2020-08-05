@@ -1,5 +1,6 @@
 // @flow
-import {FakeEvent, getLogger, Html5EventType} from '@playkit-js/playkit-js';
+import {core} from 'kaltura-player-js';
+const {FakeEvent, getLogger, Html5EventType} = core;
 
 class ImaDAIEventQueue {
   _ignore: Array<string> = [Html5EventType.TIME_UPDATE, Html5EventType.PROGRESS];
