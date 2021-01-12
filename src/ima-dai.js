@@ -61,6 +61,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
    */
   static defaultConfig: Object = {
     snapback: true,
+    showAdBreakCuePoint: false,
+    adBreakCuePointStyle: null,
     debug: false
   };
 
@@ -402,6 +404,15 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       }
     });
     this._dispatchAdEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: adBreaksPosition});
+    if (this.player.ui.hasManager('timeline') && this.config.showAdBreakCuePoint) {
+      adBreaksPosition.forEach(position => {
+        this.player.ui.getManager('timeline').addCuePoint({
+          time: position !== -1 ? Math.round(position) : Infinity,
+          presets: ['Playback'],
+          ...this.config.adBreakCuePointStyle
+        });
+      });
+    }
   }
 
   _onHlsFragParsingMetadata(event: FakeEvent): void {
