@@ -66,7 +66,7 @@ Type: [Object][48]
 -   `streamActivityMonitorId` **[string][49]** The ID to be used to debug the stream with the stream activity monitor.
 -   `authToken` **[string][49]** The stream request authorization token. Used in place of the API key for stricter content authorization. The publisher can control individual content streams authorizations based on this token.
 -   `format` **[string][49]** The stream format to request. (optional) Accepts the following string values - hls, dash (Values must be lowercase.). (optional, default `'hls'`)
--   `showAdBreakCuePoint` **[boolean][51]?** Whether to show the ad breaks cue points.
+-   `showAdBreakCuePoint` **[boolean][51]?** Whether to show the ad breaks cue points in the ui timeline.
 -   `adBreakCuePointStyle` **[Object][48]?** Style options for the ad breaks cue points - See the options [Here][55].
 
 ### Examples
