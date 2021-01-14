@@ -655,7 +655,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _shouldIgnorePreroll(adBreakOptions: Object): boolean {
-    this._ignorePreroll = this.player.config.playback.startTime > 0 && adBreakOptions.type === AdBreakType.PRE;
+    this._ignorePreroll = this.player.config.sources.startTime > 0 && adBreakOptions.type === AdBreakType.PRE;
     return this._ignorePreroll;
   }
 }
