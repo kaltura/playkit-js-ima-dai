@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.1.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.0.1...v1.1.0) (2021-01-28)
+
+
+### Features
+
+* **FEC-10686:** move startTime config from playback to sources ([#51](https://github.com/kaltura/playkit-js-ima-dai/issues/51)) ([5a03ad7](https://github.com/kaltura/playkit-js-ima-dai/commit/5a03ad7214ee9116f31f6c8ac203891951e437c5))
+* **FEC-10798:** support ima-dai ad breaks cue points ([#50](https://github.com/kaltura/playkit-js-ima-dai/issues/50)) ([dd40a6e](https://github.com/kaltura/playkit-js-ima-dai/commit/dd40a6e78e0c71d9907f6a0f11354d97af421694))
+
 ### [1.0.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.0.0...v1.0.1) (2020-11-03)
 
 
