@@ -21,7 +21,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   _active: boolean;
   _loadStart: boolean;
   _contentEnded: boolean;
-  _seekedDuringAd: boolean = false;
+  _seekedEdgeDuringAd: boolean = false;
 
   constructor(engine: IEngine, plugin: ImaDAI, dispatchEventHandler: Function) {
     this._eventManager = new EventManager();
@@ -210,7 +210,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   }
 
   seekToLiveEdge(): void {
-    this._seekedDuringAd = true;
+    this._seekedEdgeDuringAd = true;
   }
 
   _attachListeners(): void {
@@ -218,9 +218,9 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
     this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_BREAK_END, () => {
       this._active = true;
-      if (this._seekedDuringAd) {
+      if (this._seekedEdgeDuringAd) {
         this._engine.seekToLiveEdge();
-        this._seekedDuringAd = false;
+        this._seekedEdgeDuringAd = false;
       }
     });
   }
