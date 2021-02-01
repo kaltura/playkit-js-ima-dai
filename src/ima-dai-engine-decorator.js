@@ -3,7 +3,7 @@ import {core} from 'kaltura-player-js';
 import {ImaDAI} from './ima-dai';
 import {ImaDAIEventManager} from './ima-dai-event-manager';
 
-const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} = core;
+const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType, EngineDecoratorPriority} = core;
 /**
  * Engine decorator for ima dai plugin.
  * @class ImaDAIEngineDecorator
@@ -40,6 +40,10 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
 
   get active(): boolean {
     return this._active;
+  }
+
+  get priority(): number {
+    return EngineDecoratorPriority.FALLBACK;
   }
 
   /**
@@ -212,17 +216,12 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   _attachListeners(): void {
     this._eventManager.listen(this._plugin.player, Html5EventType.PLAY, () => !this._plugin.isAdBreak() && (this._contentEnded = false));
     this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
-    this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_BREAK_END, () => (this._active = true));
   }
 
   _onAdBreakStart(event: EventManager): void {
     const adBreak = event.payload.adBreak;
     if (adBreak.type === AdBreakType.POST) {
       this._contentEnded = true;
-    }
-    if (!this._loadStart) {
-      // preroll from another ad plugin (e.g. bumper)
-      this._active = false;
     }
   }
 }
