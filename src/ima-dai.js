@@ -387,7 +387,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _attachEngineListeners(): void {
-    this.eventManager.listen(this._engine, EventType.PLAY, () => this._onPlayRequest());
+    this.eventManager.listenOnce(this._engine, EventType.PLAY, () => this._onFirstPlayRequest());
     this.eventManager.listen(this._engine, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
     this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this._engine, 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
@@ -463,7 +463,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     Object.keys(streamRequest).forEach(key => (streamRequest[key] = this.config[key] || streamRequest[key]));
   }
 
-  _onPlayRequest(): void {
+  _onFirstPlayRequest(): void {
     this._firstPlay = true;
     if (this._queue.size() > 0) {
       while (!this._queue.isEmpty()) {
