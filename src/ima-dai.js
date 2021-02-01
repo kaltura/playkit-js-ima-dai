@@ -4,6 +4,7 @@ import {ImaDAIState} from './ima-dai-state';
 import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
 import {ImaDAIAdsController} from './ima-dai-ads-controller';
 import './assets/style.css';
+import {ImaDAIEventQueue} from './ima-dai-event-queue';
 
 const {Ad, AdBreak, AdBreakType, EventType, FakeEvent, Utils, Env} = core;
 const ADS_CONTAINER_CLASS: string = 'playkit-dai-ads-container';
@@ -37,6 +38,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _adsCoverDivExists: boolean;
   _snapback: boolean;
   _ignorePreroll: boolean;
+  _queue: ImaDAIEventQueue;
+  _firstPlay: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -166,7 +169,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   pauseAd(): void {
     if (this._state === ImaDAIState.PLAYING) {
       this._state = ImaDAIState.PAUSED;
-      this._dispatchAdEvent(EventType.AD_PAUSED);
+      this._delayDispatchAfterPlay(EventType.AD_PAUSED);
     }
   }
 
@@ -180,7 +183,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   resumeAd(): void {
     if (this._state === ImaDAIState.PAUSED) {
       this._state = ImaDAIState.PLAYING;
-      this._dispatchAdEvent(EventType.AD_RESUMED);
+      this._delayDispatchAfterPlay(EventType.AD_RESUMED);
       if (this._shouldPauseOnAdClick()) {
         this._setToggleAdsCover(false);
       }
@@ -270,7 +273,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => {
       const mute = event.payload.mute;
       if (mute && this.isAdBreak()) {
-        this._dispatchAdEvent(EventType.AD_MUTED);
+        this._delayDispatchAfterPlay(EventType.AD_MUTED);
       }
     });
     this.eventManager.listen(this.player, EventType.CHANGE_SOURCE_ENDED, () => {
@@ -341,6 +344,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._ignorePreroll = false;
     this._playbackRate = 1;
     this._snapback = this.config.snapback;
+    this._queue = new ImaDAIEventQueue();
+    this._firstPlay = false;
   }
 
   _loadImaDAILib(): Promise<*> {
@@ -382,6 +387,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _attachEngineListeners(): void {
+    this.eventManager.listen(this._engine, EventType.PLAY, () => this._onPlayRequest());
     this.eventManager.listen(this._engine, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
     this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this._engine, 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
@@ -389,7 +395,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _onVolumeChange(): void {
     if (this.isAdBreak()) {
-      this._dispatchAdEvent(EventType.AD_VOLUME_CHANGED);
+      this._delayDispatchAfterPlay(EventType.AD_VOLUME_CHANGED);
     }
   }
 
@@ -403,7 +409,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         adBreaksPosition.push(position);
       }
     });
-    this._dispatchAdEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: adBreaksPosition});
+    this._delayDispatchAfterPlay(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: adBreaksPosition});
     if (this.player.ui.hasManager('timeline') && this.config.showAdBreakCuePoint) {
       adBreaksPosition.forEach(position => {
         this.player.ui.getManager('timeline').addCuePoint({
@@ -457,6 +463,24 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     Object.keys(streamRequest).forEach(key => (streamRequest[key] = this.config[key] || streamRequest[key]));
   }
 
+  _onPlayRequest(): void {
+    this._firstPlay = true;
+    if (this._queue.size() > 0) {
+      while (!this._queue.isEmpty()) {
+        const {name, payload} = this._queue.pop();
+        this._dispatchAdEvent(name, payload);
+      }
+    }
+  }
+
+  _delayDispatchAfterPlay(name: string, payload: any): void {
+    if (!this._firstPlay) {
+      this._queue.push({name, payload});
+    } else {
+      this._dispatchAdEvent(name, payload);
+    }
+  }
+
   _onLoaded(event: Object): void {
     const streamData = event.getStreamData();
     this._state = ImaDAIState.LOADED;
@@ -482,7 +506,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     }
     this._adBreak = true;
     Utils.Dom.setAttribute(this._adsContainerDiv, 'data-adtype', adBreakOptions.type);
-    this._dispatchAdEvent(EventType.AD_BREAK_START, {adBreak: new AdBreak(adBreakOptions)});
+    this._delayDispatchAfterPlay(EventType.AD_BREAK_START, {adBreak: new AdBreak(adBreakOptions)});
     this._showAdsContainer();
     this._playbackRate = this.player.playbackRate;
     this.player.playbackRate !== 1 && (this.player.playbackRate = 1);
@@ -493,7 +517,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       return;
     }
     const adProgressData = event.getStreamData().adProgressData;
-    this._dispatchAdEvent(EventType.AD_PROGRESS, {
+    this._delayDispatchAfterPlay(EventType.AD_PROGRESS, {
       adProgress: {
         currentTime: adProgressData.currentTime,
         duration: adProgressData.duration
@@ -511,8 +535,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._state = ImaDAIState.PLAYING;
     const adOptions = this._getAdOptions(event);
     const payload = {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)};
-    this._dispatchAdEvent(EventType.AD_LOADED, payload);
-    this._dispatchAdEvent(EventType.AD_STARTED, payload);
+    this._delayDispatchAfterPlay(EventType.AD_LOADED, payload);
+    this._delayDispatchAfterPlay(EventType.AD_STARTED, payload);
     this._adStartedDispatched = true;
     if (this._engine.paused) {
       this.pauseAd();
@@ -520,20 +544,20 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _onAdFirstQuartile(): void {
-    this._dispatchAdEvent(EventType.AD_FIRST_QUARTILE);
+    this._delayDispatchAfterPlay(EventType.AD_FIRST_QUARTILE);
   }
 
   _onAdMidpoint(): void {
-    this._dispatchAdEvent(EventType.AD_MIDPOINT);
+    this._delayDispatchAfterPlay(EventType.AD_MIDPOINT);
   }
 
   _onAdThirdQuartile(): void {
-    this._dispatchAdEvent(EventType.AD_THIRD_QUARTILE);
+    this._delayDispatchAfterPlay(EventType.AD_THIRD_QUARTILE);
   }
 
   _onAdComplete(): void {
     this._state = ImaDAIState.IDLE;
-    this._dispatchAdEvent(EventType.AD_COMPLETED);
+    this._delayDispatchAfterPlay(EventType.AD_COMPLETED);
     this._adStartedDispatched = false;
   }
 
@@ -546,7 +570,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         this.pauseAd();
       }
     }
-    this._dispatchAdEvent(EventType.AD_CLICKED);
+    this._delayDispatchAfterPlay(EventType.AD_CLICKED);
   }
 
   _onAdBreakEnded(): void {
@@ -554,10 +578,10 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       this._adBreak = false;
       const allCuesPlayed = !this._cuePoints.find(cuePoints => !cuePoints.played);
       const adBreak = this.player.ads.getAdBreak();
-      this._dispatchAdEvent(EventType.AD_BREAK_END);
+      this._delayDispatchAfterPlay(EventType.AD_BREAK_END);
       const dispatchAllAdsCompleted = () => {
         this._state = ImaDAIState.DONE;
-        this._dispatchAdEvent(EventType.ADS_COMPLETED);
+        this._delayDispatchAfterPlay(EventType.ADS_COMPLETED);
       };
       if (adBreak.type === AdBreakType.POST) {
         if (this._engine.ended) {

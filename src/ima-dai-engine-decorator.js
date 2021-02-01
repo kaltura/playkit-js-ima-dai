@@ -55,21 +55,22 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     this._logger.debug('load', startTime);
     // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
-    return this._plugin
-      .getStreamUrl()
-      .then(url => {
-        this._logger.debug('Stream url has been fetched', url);
-        this._loadStart = true;
-        this._engine.src = url;
-        return this._engine.load(this._plugin.getStreamTime(startTime));
-      })
-      .catch(e => {
-        this._logger.error(e);
-        this._plugin.destroy();
-        const loadPromise = this._engine.load(startTime);
-        this._active = false;
-        return loadPromise;
-      });
+    return new Promise((resolve, reject) => {
+      this._loadStart = true;
+      this._plugin.getStreamUrl().then(
+        url => {
+          this._logger.debug('Stream url has been fetched', url);
+          this._engine.src = url;
+          this._engine.load(this._plugin.getStreamTime(startTime)).then(resolve, reject);
+        },
+        e => {
+          this._logger.error(e);
+          this._plugin.destroy();
+          this._active = false;
+          this._engine.load(startTime).then(resolve, reject);
+        }
+      );
+    });
   }
 
   /**
