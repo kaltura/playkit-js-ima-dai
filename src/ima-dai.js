@@ -434,7 +434,10 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.LOADED, e => this._onLoaded(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.ERROR, e => this._onError(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.CUEPOINTS_CHANGED, e => this._onCuePointsChanged(e));
-    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_STARTED, () => this._onAdBreakStarted());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_STARTED, e => {
+      this._onAdLoaded(e);
+      this._onAdBreakStarted();
+    });
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_ENDED, () => this._onAdBreakEnded());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_PROGRESS, e => this._onAdProgress(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.STARTED, e => this._onAdStarted(e));
@@ -488,6 +491,12 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._resolveLoad(streamData.url);
   }
 
+  _onAdLoaded(event: Object): void {
+    const adOptions = this._getAdOptions(event);
+    const payload = {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)};
+    this._delayDispatchAfterPlay(EventType.AD_LOADED, payload);
+  }
+
   _onError(event: Object): void {
     this.logger.error('Error loading stream', event);
     this._rejectLoad();
@@ -535,7 +544,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._state = ImaDAIState.PLAYING;
     const adOptions = this._getAdOptions(event);
     const payload = {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)};
-    this._delayDispatchAfterPlay(EventType.AD_LOADED, payload);
     this._delayDispatchAfterPlay(EventType.AD_STARTED, payload);
     this._adStartedDispatched = true;
     if (this._engine.paused) {
