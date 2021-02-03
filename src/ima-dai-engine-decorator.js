@@ -113,7 +113,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     if (this._plugin.isAdBreak()) {
       this._plugin.resumeAd();
     }
-    this._engine.play();
+    this._engine.play().then(() => this._plugin._dispatchEventsOnFirstPlay());
   }
 
   /**
