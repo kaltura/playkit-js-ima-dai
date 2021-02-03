@@ -49,7 +49,7 @@ class ImaDAIAdsController implements IAdsPluginController {
    * @memberof ImaDAIAdsController
    */
   onPlaybackEnded(): Promise<void> {
-    return Promise.resolve();
+    return this._context.onPlaybackEnded();
   }
 
   /**
