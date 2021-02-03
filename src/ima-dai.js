@@ -674,12 +674,10 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _dispatchEventsOnFirstPlay(): void {
     if (!this._firstPlay) {
       this._firstPlay = true;
-      if (this._queue.size() > 0) {
-        while (!this._queue.isEmpty()) {
-          const {type, payload} = this._queue.pop();
-          this._dispatchAdEvent(type, payload);
-        }
-      }
+      this._queue.dispatchAll(event => {
+        const {type, payload} = event;
+        this._dispatchAdEvent(type, payload);
+      });
     }
   }
 

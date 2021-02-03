@@ -25,6 +25,15 @@ class ImaDAIEventQueue {
     }
   }
 
+  dispatchAll(dispatcher: Function): void {
+    if (this.size() > 0) {
+      while (!this.isEmpty()) {
+        const event = this.pop();
+        dispatcher(event);
+      }
+    }
+  }
+
   isEmpty(): boolean {
     return this.size() === 0;
   }
