@@ -19,7 +19,6 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   _eventManager: EventManager;
   _daiEventManager: ImaDAIEventManager;
   _active: boolean;
-  _loadStart: boolean;
   _contentEnded: boolean;
 
   constructor(engine: IEngine, plugin: ImaDAI, dispatchEventHandler: Function) {
@@ -34,7 +33,6 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
 
   _initMembers(): void {
     this._active = true;
-    this._loadStart = false;
     this._contentEnded = false;
   }
 
@@ -60,7 +58,6 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
     return new Promise((resolve, reject) => {
-      this._loadStart = true;
       this._plugin.getStreamUrl().then(
         url => {
           this._logger.debug('Stream url has been fetched', url);
