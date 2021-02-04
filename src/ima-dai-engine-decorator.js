@@ -3,7 +3,7 @@ import {core} from 'kaltura-player-js';
 import {ImaDAI} from './ima-dai';
 import {ImaDAIEventManager} from './ima-dai-event-manager';
 
-const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType, EngineDecoratorPriority} = core;
+const {AdBreakType, AdEventType, EventManager, FakeEvent, getLogger, Html5EventType} = core;
 /**
  * Engine decorator for ima dai plugin.
  * @class ImaDAIEngineDecorator
@@ -19,6 +19,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   _eventManager: EventManager;
   _daiEventManager: ImaDAIEventManager;
   _active: boolean;
+  _loadStart: boolean;
   _contentEnded: boolean;
 
   constructor(engine: IEngine, plugin: ImaDAI, dispatchEventHandler: Function) {
@@ -33,15 +34,12 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
 
   _initMembers(): void {
     this._active = true;
+    this._loadStart = false;
     this._contentEnded = false;
   }
 
   get active(): boolean {
     return this._active;
-  }
-
-  get priority(): number {
-    return EngineDecoratorPriority.FALLBACK;
   }
 
   /**
@@ -58,6 +56,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
     return new Promise((resolve, reject) => {
+      this._loadStart = true;
       this._plugin.getStreamUrl().then(
         url => {
           this._logger.debug('Stream url has been fetched', url);
@@ -214,6 +213,13 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   _attachListeners(): void {
     this._eventManager.listen(this._plugin.player, Html5EventType.PLAY, () => !this._plugin.isAdBreak() && (this._contentEnded = false));
     this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
+    this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_LOADED, () => {
+      if (!this._loadStart) {
+        // preroll from another ad plugin (e.g. bumper)
+        this._active = false;
+      }
+    });
+    this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_BREAK_END, () => (this._active = true));
   }
 
   _onAdBreakStart(event: EventManager): void {
