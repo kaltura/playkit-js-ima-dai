@@ -311,14 +311,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         }
       }
     });
-    this.eventManager.listen(this.player, EventType.PLAY_FAILED, () => {
-      if (this._adBreak) {
-        this._onAdBreakEnded();
-        this.eventManager.listenOnce(this.player, EventType.FIRST_PLAY, () => {
-          this._onAdBreakStarted();
-        });
-      }
-    });
   }
 
   _init(): void {
