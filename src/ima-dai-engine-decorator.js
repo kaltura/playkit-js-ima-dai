@@ -55,21 +55,22 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     this._logger.debug('load', startTime);
     // When load comes from a user gesture need to open the video element synchronously
     this._engine.getVideoElement().load();
-    return this._plugin
-      .getStreamUrl()
-      .then(url => {
-        this._logger.debug('Stream url has been fetched', url);
-        this._loadStart = true;
-        this._engine.src = url;
-        return this._engine.load(this._plugin.getStreamTime(startTime));
-      })
-      .catch(e => {
-        this._logger.error(e);
-        this._plugin.destroy();
-        const loadPromise = this._engine.load(startTime);
-        this._active = false;
-        return loadPromise;
-      });
+    return new Promise((resolve, reject) => {
+      this._loadStart = true;
+      this._plugin.getStreamUrl().then(
+        url => {
+          this._logger.debug('Stream url has been fetched', url);
+          this._engine.src = url;
+          this._engine.load(this._plugin.getStreamTime(startTime)).then(resolve, reject);
+        },
+        e => {
+          this._logger.error(e);
+          this._plugin.destroy();
+          this._active = false;
+          this._engine.load(startTime).then(resolve, reject);
+        }
+      );
+    });
   }
 
   /**
@@ -111,7 +112,8 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     if (this._plugin.isAdBreak()) {
       this._plugin.resumeAd();
     }
-    this._engine.play();
+    const playPromise = this._engine.play();
+    playPromise ? playPromise.then(() => this._plugin._dispatchEventsOnFirstPlay()) : this._plugin._dispatchEventsOnFirstPlay();
   }
 
   /**
@@ -211,6 +213,12 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
   _attachListeners(): void {
     this._eventManager.listen(this._plugin.player, Html5EventType.PLAY, () => !this._plugin.isAdBreak() && (this._contentEnded = false));
     this._eventManager.listen(this._plugin.player, AdEventType.AD_BREAK_START, event => this._onAdBreakStart(event));
+    this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_LOADED, () => {
+      if (!this._loadStart) {
+        // preroll from another ad plugin (e.g. bumper)
+        this._active = false;
+      }
+    });
     this._eventManager.listenOnce(this._plugin.player, AdEventType.AD_BREAK_END, () => (this._active = true));
   }
 
@@ -218,10 +226,6 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     const adBreak = event.payload.adBreak;
     if (adBreak.type === AdBreakType.POST) {
       this._contentEnded = true;
-    }
-    if (!this._loadStart) {
-      // preroll from another ad plugin (e.g. bumper)
-      this._active = false;
     }
   }
 }

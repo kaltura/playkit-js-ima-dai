@@ -4,6 +4,7 @@ import {ImaDAIState} from './ima-dai-state';
 import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
 import {ImaDAIAdsController} from './ima-dai-ads-controller';
 import './assets/style.css';
+import {ImaDAIEventQueue} from './ima-dai-event-queue';
 
 const {Ad, AdBreak, AdBreakType, EventType, FakeEvent, Utils, Env} = core;
 const ADS_CONTAINER_CLASS: string = 'playkit-dai-ads-container';
@@ -37,6 +38,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _adsCoverDivExists: boolean;
   _snapback: boolean;
   _ignorePreroll: boolean;
+  _queue: ImaDAIEventQueue;
+  _firstPlay: boolean;
 
   static IMA_DAI_SDK_LIB_URL: string = '//imasdk.googleapis.com/js/sdkloader/ima3_dai.js';
 
@@ -274,6 +277,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       }
     });
     this.eventManager.listen(this.player, EventType.CHANGE_SOURCE_ENDED, () => {
+      this.eventManager.listen(this.player, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
       this._attachEngineListeners();
     });
     this.eventManager.listen(this.player, EventType.TIME_UPDATE, () => {
@@ -307,14 +311,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         }
       }
     });
-    this.eventManager.listen(this.player, EventType.PLAY_FAILED, () => {
-      if (this._adBreak) {
-        this._onAdBreakEnded();
-        this.eventManager.listenOnce(this.player, EventType.FIRST_PLAY, () => {
-          this._onAdBreakStarted();
-        });
-      }
-    });
   }
 
   _init(): void {
@@ -341,6 +337,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._ignorePreroll = false;
     this._playbackRate = 1;
     this._snapback = this.config.snapback;
+    this._queue = new ImaDAIEventQueue();
+    this._firstPlay = false;
   }
 
   _loadImaDAILib(): Promise<*> {
@@ -382,7 +380,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _attachEngineListeners(): void {
-    this.eventManager.listen(this._engine, EventType.LOADED_METADATA, () => this._onLoadedMetadata());
     this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this._engine, 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
   }
@@ -612,6 +609,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       adOptions.position = podInfo.getAdPosition();
     }
     adOptions.bumper = false;
+    adOptions.inStream = true;
     adOptions.linear = true;
     return adOptions;
   }
@@ -657,8 +655,22 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _dispatchAdEvent(type: string, payload?: Object): void {
-    this.logger.debug(type.toUpperCase(), payload);
-    this.dispatchEvent(type, payload);
+    if (!this._firstPlay) {
+      this._queue.push({type, payload});
+    } else {
+      this.logger.debug(type.toUpperCase(), payload);
+      this.dispatchEvent(type, payload);
+    }
+  }
+
+  _dispatchEventsOnFirstPlay(): void {
+    if (!this._firstPlay) {
+      this._firstPlay = true;
+      this._queue.dispatchAll(event => {
+        const {type, payload} = event;
+        this._dispatchAdEvent(type, payload);
+      });
+    }
   }
 
   _shouldPauseOnAdClick(): boolean {

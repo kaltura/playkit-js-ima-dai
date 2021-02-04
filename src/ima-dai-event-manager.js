@@ -81,12 +81,7 @@ class ImaDAIEventManager {
   }
 
   _onAdBreakEnd(): void {
-    if (this._queue.size() > 0) {
-      while (!this._queue.isEmpty()) {
-        const event = this._queue.pop();
-        this._dispatchEventHandler(event);
-      }
-    }
+    this._queue.dispatchAll(this._dispatchEventHandler);
   }
 }
 
