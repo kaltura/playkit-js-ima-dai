@@ -11,6 +11,7 @@
  * @param {string} streamActivityMonitorId - The ID to be used to debug the stream with the stream activity monitor.
  * @param {string} authToken - The stream request authorization token. Used in place of the API key for stricter content authorization. The publisher can control individual content streams authorizations based on this token.
  * @param {string} [format='hls'] - The stream format to request. (optional) Accepts the following string values - hls, dash (Values must be lowercase.).
+ * @param {string} [locale] - Sets the publisher provided locale. The locale specifies the language in which to display UI elements and can be any two-letter {@link https://www.loc.gov/standards/iso639-2/php/English_list.php|ISO 639-1} code.
  * @param {boolean} [showAdBreakCuePoint] - Whether to show the ad breaks cue points in the ui timeline.
  * @param {Object} [adBreakCuePointStyle] - Style options for the ad breaks cue points - See the options {@link https://github.com/kaltura/playkit-js-timeline/blob/main/docs/types.md#cuepointoptionsobject|Here}.
  * @example
@@ -34,6 +35,7 @@ type _ImaDAIConfigObject = {
   streamActivityMonitorId: string,
   authToken: string,
   format: string,
+  locale: string,
   showAdBreakCuePoint: boolean,
   adBreakCuePointStyle: Object
 };
