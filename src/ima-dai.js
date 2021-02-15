@@ -373,8 +373,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _initStreamManager(): void {
     if (!this._streamManager) {
       this.logger.debug('Create stream manager');
-      this._streamManager = new this._sdk.api.StreamManager(this.player.getVideoElement());
-      this._streamManager.setClickElement(this._adsContainerDiv);
+      this._streamManager = new this._sdk.api.StreamManager(this.player.getVideoElement(), this._adsContainerDiv);
       this._attachStreamManagerListeners();
     }
   }
