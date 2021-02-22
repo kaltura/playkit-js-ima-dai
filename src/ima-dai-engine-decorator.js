@@ -66,8 +66,9 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
         e => {
           this._logger.error(e);
           this._plugin.destroy();
-          this._active = false;
           this._engine.load(startTime).then(resolve, reject);
+          this._eventManager.removeAll();
+          this._active = false;
         }
       );
     });
