@@ -30,6 +30,9 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
     this._logger = getLogger('ImaDAIEngineDecorator');
     this._initMembers();
     this._attachListeners();
+    this._plugin.player.addEventListener(this._plugin.player.Event.PLAYER_RESET, () => {
+      this.reset();
+    });
   }
 
   _initMembers(): void {
@@ -63,8 +66,7 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
           this._engine.src = url;
           this._engine.load(this._plugin.getStreamTime(startTime)).then(resolve, reject);
         },
-        e => {
-          this._logger.error(e);
+        () => {
           this._plugin.destroy();
           this._engine.load(startTime).then(resolve, reject);
           this._eventManager.removeAll();
