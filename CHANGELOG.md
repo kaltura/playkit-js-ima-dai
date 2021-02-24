@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.2.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.1.0...v1.2.0) (2021-02-24)
+
+
+### Bug Fixes
+
+* **FEC-11031:** DAI doesn't work in change media after failure ([#59](https://github.com/kaltura/playkit-js-ima-dai/issues/59)) ([3102d26](https://github.com/kaltura/playkit-js-ima-dai/commit/3102d26))
+* IMA & DAI seek doesn't works after pre-roll Ad finished ([#58](https://github.com/kaltura/playkit-js-ima-dai/issues/58)) ([bd03f01](https://github.com/kaltura/playkit-js-ima-dai/commit/bd03f01))
+* **FEC-10265:** Use adUiElement instaed of deprecated setClickElement ([#56](https://github.com/kaltura/playkit-js-ima-dai/issues/56)) ([0a7fccd](https://github.com/kaltura/playkit-js-ima-dai/commit/0a7fccd))
+
+
+### Features
+
+* **FEC-10041:** Allow ADS to be used in parallel ([#54](https://github.com/kaltura/playkit-js-ima-dai/issues/54)) ([ea76bca](https://github.com/kaltura/playkit-js-ima-dai/commit/ea76bca))
+* **FEC-10264:** add support for IMA DAI UiSettings - locale ([#57](https://github.com/kaltura/playkit-js-ima-dai/issues/57)) ([8fa9b8a](https://github.com/kaltura/playkit-js-ima-dai/commit/8fa9b8a))
+
+
+
 ## [1.1.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.0.1...v1.1.0) (2021-01-28)
 
 
