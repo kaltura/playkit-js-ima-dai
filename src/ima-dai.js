@@ -43,8 +43,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   /**
    * an object containing all delayed events from our SDK for IMA DAI events.
-   * @member {Object} - _adapterEventsBindings
-   * @type {Object}
+   * @member {Map} - _delayedEventBindings
+   * @type {Map}
    * @private
    */
   _delayedEventBindings: Map<string, Function>;
