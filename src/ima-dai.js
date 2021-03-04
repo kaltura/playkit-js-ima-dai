@@ -522,7 +522,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _onAdProgress(event: Object): void {
     if (!this._adStartedDispatched) {
-      this._onAdStarted(event);
+      this._onAdStartedFromSDK(event);
     }
   }
 
@@ -693,8 +693,9 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       this._queue.push({type, payload});
     } else {
       this.logger.debug(type.toUpperCase(), payload);
-      if (this._delayedEventBindings.has(type)) {
-        this._delayedEventBindings.get(type)({type, payload});
+      const callback = this._delayedEventBindings.get(type);
+      if (callback && typeof callback === 'function') {
+        callback({type, payload});
       }
       this.dispatchEvent(type, payload);
     }
