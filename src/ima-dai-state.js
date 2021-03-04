@@ -5,8 +5,6 @@
  * @type {Object}
  */
 const ImaDAIState: {[state: string]: string} = {
-  LOADING: 'loading',
-  LOADED: 'loaded',
   PLAYING: 'playing',
   PAUSED: 'paused',
   IDLE: 'idle',
