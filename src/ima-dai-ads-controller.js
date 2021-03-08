@@ -32,17 +32,6 @@ class ImaDAIAdsController implements IAdsPluginController {
   }
 
   /**
-   * Play an ad on demand.
-   * @public
-   * @returns {void}
-   * @instance
-   * @memberof ImaDAIAdsController
-   */
-  playAdNow(): void {
-    this._context.playAdNow();
-  }
-
-  /**
    * On playback ended handler.
    * @public
    * @returns {Promise<void>} - complete promise

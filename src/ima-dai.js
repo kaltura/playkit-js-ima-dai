@@ -148,17 +148,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   /**
-   * Plays ad on demand.
-   * @returns {void}
-   * @private
-   * @instance
-   * @memberof ImaDAI
-   */
-  playAdNow(): void {
-    this.logger.warn('playAdNow API is not implemented yet');
-  }
-
-  /**
    * Pausing the ad.
    * @public
    * @returns {void}
