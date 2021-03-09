@@ -121,7 +121,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     return new Promise((resolve, reject) => {
       return this._loadPromise
         .then(() => {
-          this._state = ImaDAIState.LOADING;
           this._resolveLoad = resolve;
           this._rejectLoad = reject;
           this._initStreamManager();
@@ -154,17 +153,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
    */
   skipAd(): void {
     this.logger.warn("Ima DAI isn't support skip on an ad");
-  }
-
-  /**
-   * Plays ad on demand.
-   * @returns {void}
-   * @private
-   * @instance
-   * @memberof ImaDAI
-   */
-  playAdNow(): void {
-    this.logger.warn('playAdNow API is not implemented yet');
   }
 
   /**
@@ -336,7 +324,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   }
 
   _initMembers(): void {
-    this._state = ImaDAIState.IDLE;
+    this._state = ImaDAIState.DONE;
     this._cuePoints = [];
     this._adBreak = false;
     this._savedSeekTime = null;
@@ -412,6 +400,9 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       }
     });
     this._dispatchAdEvent(EventType.AD_MANIFEST_LOADED, {adBreaksPosition: adBreaksPosition});
+    if (adBreaksPosition.length > 0) {
+      this._state = ImaDAIState.IDLE;
+    }
     if (this.player.ui.hasManager('timeline') && this.config.showAdBreakCuePoint) {
       adBreaksPosition.forEach(position => {
         this.player.ui.getManager('timeline').addCuePoint({
@@ -474,7 +465,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _onLoaded(event: Object): void {
     const streamData = event.getStreamData();
-    this._state = ImaDAIState.LOADED;
     this.logger.debug('Stream loaded', streamData);
     this._resolveLoad(streamData.url);
   }
