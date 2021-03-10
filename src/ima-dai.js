@@ -426,8 +426,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this.logger.debug('Attach stream manager listeners');
     this._delayedEventBindings = new Map();
     this._delayedEventBindings.set(EventType.AD_BREAK_START, e => this._onAdBreakStarted(e));
-    this._delayedEventBindings.set(EventType.AD_PROGRESS, e => this._onAdProgress(e));
-    this._delayedEventBindings.set(EventType.AD_STARTED, () => this._onAdStarted());
     this._delayedEventBindings.set(EventType.AD_COMPLETED, () => this._onAdComplete());
     this._delayedEventBindings.set(EventType.AD_CLICKED, () => this._onAdClick());
 
@@ -436,8 +434,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.CUEPOINTS_CHANGED, e => this._onCuePointsChanged(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_STARTED, () => this._onAdBreakStartedFromSDK());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_ENDED, () => this._onAdBreakEnded());
-    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_PROGRESS, e => this._onAdProgressFromSDK(e));
-    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.STARTED, e => this._onAdStartedFromSDK(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_PROGRESS, e => this._onAdProgress(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.STARTED, e => this._onAdStarted(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.FIRST_QUARTILE, () => this._onAdFirstQuartile());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.MIDPOINT, () => this._onAdMidpoint());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.THIRD_QUARTILE, () => this._onAdThirdQuartile());
@@ -497,9 +495,12 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this.player.playbackRate !== 1 && (this.player.playbackRate = 1);
   }
 
-  _onAdProgressFromSDK(event: Object): void {
+  _onAdProgress(event: Object): void {
     if (this._ignorePreroll) {
       return;
+    }
+    if (!this._adStartedDispatched) {
+      this._onAdStarted(event);
     }
     const adProgressData = event.getStreamData().adProgressData;
     this._dispatchAdEvent(EventType.AD_PROGRESS, {
@@ -510,13 +511,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     });
   }
 
-  _onAdProgress(event: Object): void {
-    if (!this._adStartedDispatched) {
-      this._onAdStartedFromSDK(event);
-    }
-  }
-
-  _onAdStartedFromSDK(event: Object): void {
+  _onAdStarted(event: Object): void {
     if (this._ignorePreroll) {
       return;
     }
@@ -525,9 +520,6 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     const payload = {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)};
     this._dispatchAdEvent(EventType.AD_LOADED, payload);
     this._dispatchAdEvent(EventType.AD_STARTED, payload);
-  }
-
-  _onAdStarted(): void {
     this._adStartedDispatched = true;
     if (this._engine.paused) {
       this.pauseAd();
