@@ -428,6 +428,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._delayedEventBindings.set(EventType.AD_BREAK_START, e => this._onAdBreakStarted(e));
     this._delayedEventBindings.set(EventType.AD_COMPLETED, () => this._onAdComplete());
     this._delayedEventBindings.set(EventType.AD_CLICKED, () => this._onAdClick());
+    this._delayedEventBindings.set(EventType.AD_STARTED, () => this._onAdStarted());
 
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.LOADED, e => this._onLoaded(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.ERROR, e => this._onError(e));
@@ -435,7 +436,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_STARTED, () => this._onAdBreakStartedFromSDK());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_BREAK_ENDED, () => this._onAdBreakEnded());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.AD_PROGRESS, e => this._onAdProgress(e));
-    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.STARTED, e => this._onAdStarted(e));
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.STARTED, e => this._onAdStartedFromSDK(e));
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.FIRST_QUARTILE, () => this._onAdFirstQuartile());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.MIDPOINT, () => this._onAdMidpoint());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.THIRD_QUARTILE, () => this._onAdThirdQuartile());
@@ -511,16 +512,19 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     });
   }
 
-  _onAdStarted(event: Object): void {
+  _onAdStartedFromSDK(event: Object): void {
     if (this._ignorePreroll) {
       return;
     }
-    this._state = ImaDAIState.PLAYING;
     const adOptions = this._getAdOptions(event);
     const payload = {ad: new Ad(event.getAd() && event.getAd().getAdId(), adOptions)};
     this._dispatchAdEvent(EventType.AD_LOADED, payload);
     this._dispatchAdEvent(EventType.AD_STARTED, payload);
     this._adStartedDispatched = true;
+  }
+
+  _onAdStarted(): void {
+    this._state = ImaDAIState.PLAYING;
     if (this._engine.paused) {
       this.pauseAd();
     }
