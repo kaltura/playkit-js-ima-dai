@@ -501,7 +501,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
       return;
     }
     if (!this._adStartedDispatched) {
-      this._onAdStarted(event);
+      this._onAdStartedFromSDK(event);
     }
     const adProgressData = event.getStreamData().adProgressData;
     this._dispatchAdEvent(EventType.AD_PROGRESS, {
