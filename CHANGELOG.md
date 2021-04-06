@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.2.2](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.2.1...v1.2.2) (2021-04-06)
+
+
+### Bug Fixes
+
+* **FEC-11047:** IMA DAI display container on preload and handling flags too soon ([#60](https://github.com/kaltura/playkit-js-ima-dai/issues/60)) ([f635da8](https://github.com/kaltura/playkit-js-ima-dai/commit/f635da8))
+* **FEC-11062:** ad layout doesn't work when IMA DAI configured ([#62](https://github.com/kaltura/playkit-js-ima-dai/issues/62)) ([606020b](https://github.com/kaltura/playkit-js-ima-dai/commit/606020b))
+* **FEC-11090:** PLAY/PAUSE button got stuck in play IMA + DAI while IMA DAI ad playing. ([#64](https://github.com/kaltura/playkit-js-ima-dai/issues/64)) ([df09a8c](https://github.com/kaltura/playkit-js-ima-dai/commit/df09a8c))
+
+
+
 ### [1.2.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.2.0...v1.2.1) (2021-03-07)
 
 
