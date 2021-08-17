@@ -40,6 +40,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _ignorePreroll: boolean;
   _queue: ImaDAIEventQueue;
   _firstPlay: boolean;
+  _streamId: string;
 
   /**
    * an object containing all delayed events from our SDK for IMA DAI events.
@@ -464,6 +465,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
 
   _onLoaded(event: Object): void {
     const streamData = event.getStreamData();
+    this._streamId = streamData.streamId;
     this.logger.debug('Stream loaded', streamData);
     this._resolveLoad(streamData.url);
   }
@@ -631,6 +633,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     adOptions.bumper = false;
     adOptions.inStream = true;
     adOptions.linear = true;
+    adOptions.streamId = this._streamId;
     return adOptions;
   }
 
