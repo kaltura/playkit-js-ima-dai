@@ -404,9 +404,9 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     if (adBreaksPosition.length > 0) {
       this._state = ImaDAIState.IDLE;
     }
-    if (this.player.ui.hasManager('timeline') && this.config.showAdBreakCuePoint) {
+    if (this.player.hasService('timeline') && this.config.showAdBreakCuePoint) {
       adBreaksPosition.forEach(position => {
-        this.player.ui.getManager('timeline').addCuePoint({
+        this.player.getService('timeline').addCuePoint({
           time: position !== -1 ? Math.round(position) : Infinity,
           presets: ['Playback'],
           ...this.config.adBreakCuePointStyle
