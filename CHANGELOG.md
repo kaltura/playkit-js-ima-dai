@@ -2,6 +2,26 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [1.3.0](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.2.2...v1.3.0) (2021-08-26)
+
+
+### Bug Fixes
+
+* **FEC-10598:** add streamId to PKAdOptions ([#77](https://github.com/kaltura/playkit-js-ima-dai/issues/77)) ([f7487c5](https://github.com/kaltura/playkit-js-ima-dai/commit/f7487c5))
+
+
+### Build System
+
+* **FEC-10700:** Improvement for CI/CD ([#73](https://github.com/kaltura/playkit-js-ima-dai/issues/73)) ([704a4d1](https://github.com/kaltura/playkit-js-ima-dai/commit/704a4d1))
+* **FEC-11389:** reduce builds from travis ([af17cd5](https://github.com/kaltura/playkit-js-ima-dai/commit/af17cd5))
+
+
+### Features
+
+* **FEC-11475:** create service manager that allows registration and accessing of services ([#76](https://github.com/kaltura/playkit-js-ima-dai/issues/76)) ([4b7e842](https://github.com/kaltura/playkit-js-ima-dai/commit/4b7e842)), closes [kaltura/kaltura-player-js#477](https://github.com/kaltura/playkit-js-ima-dai/issues/477) [kaltura/playkit-js-ui#630](https://github.com/kaltura/playkit-js-ima-dai/issues/630)
+
+
+
 ### [1.2.2](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.2.1...v1.2.2) (2021-04-06)
 
 
