@@ -443,6 +443,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.THIRD_QUARTILE, () => this._onAdThirdQuartile());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.COMPLETE, () => this._onAdCompleteFromSDK());
     this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.CLICK, () => this._onAdClickFromSDK());
+    this._streamManager.addEventListener(this._sdk.api.StreamEvent.Type.PAUSED, () => this._onAdPause());
   }
 
   _requestVODStream(): void {
@@ -566,6 +567,11 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
         this.pauseAd();
       }
     }
+  }
+
+  _onAdPause() {
+    this.player.pause();
+    this.pauseAd();
   }
 
   _onAdBreakEnded(): void {
