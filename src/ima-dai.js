@@ -572,6 +572,8 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _onAdPause() {
     this.player.pause();
     this.pauseAd();
+    this.player.play();
+    this.resumeAd();
   }
 
   _onAdBreakEnded(): void {
