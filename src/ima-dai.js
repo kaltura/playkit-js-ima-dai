@@ -382,6 +382,7 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
   _attachEngineListeners(): void {
     this.eventManager.listen(this._engine, EventType.VOLUME_CHANGE, () => this._onVolumeChange());
     this.eventManager.listen(this._engine, 'hlsFragParsingMetadata', event => this._onHlsFragParsingMetadata(event));
+    this.eventManager.listen(this._engine, 'timelineregionenter', event => this._onDashTimelineRegionEnter(event));
   }
 
   _onVolumeChange(): void {
@@ -419,6 +420,14 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     if (this._streamManager && event && event.payload) {
       event.payload.samples.forEach(sample => {
         this._streamManager.processMetadata('ID3', sample.data, sample.pts);
+      });
+    }
+  }
+
+  _onDashTimelineRegionEnter(event: FakeEvent): void {
+    if (this._streamManager && event && event.payload) {
+      this._streamManager.onTimedMetadata({
+        ['TXXX']: event.payload.detail.eventElement.attributes.messageData.nodeValue
       });
     }
   }
