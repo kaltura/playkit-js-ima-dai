@@ -3,7 +3,7 @@ import {core} from 'kaltura-player-js';
 const {FakeEvent, getLogger, Html5EventType} = core;
 
 class ImaDAIEventQueue {
-  _ignore: Array<string> = [Html5EventType.TIME_UPDATE, Html5EventType.PROGRESS];
+  _ignore: Array<string> = [Html5EventType.TIME_UPDATE, Html5EventType.PROGRESS, Html5EventType.PLAY, Html5EventType.PAUSE];
   _queue: Array<FakeEvent>;
   _logger: Object;
 
