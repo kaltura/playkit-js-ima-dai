@@ -2,6 +2,20 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.2](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.3.1...v1.3.2) (2022-10-03)
+
+
+### Bug Fixes
+
+* **FEC-9421:** DAI plugin doesn't mask playback events during ad ([#97](https://github.com/kaltura/playkit-js-ima-dai/issues/97)) ([87481b7](https://github.com/kaltura/playkit-js-ima-dai/commit/87481b7))
+
+
+### Build System
+
+* set prerelease false ([dcde5d1](https://github.com/kaltura/playkit-js-ima-dai/commit/dcde5d1))
+
+
+
 ### [1.3.1](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.3.0...v1.3.1) (2022-01-19)
 
 
