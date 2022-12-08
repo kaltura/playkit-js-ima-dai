@@ -110,6 +110,12 @@
   "publishConfig": {
     "access": "public"
   },
+    "kaltura": {
+    "name": "ima-dai",
+    "dependencies": {
+      "playkit-timeline": "3.0.0"
+    }
+  },
   "kcc": {
     "name": "playkit-ima-dai"
   }
