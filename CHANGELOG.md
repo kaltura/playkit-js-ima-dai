@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.3.3](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.3.2...v1.3.3) (2022-12-19)
+
+
+### Bug Fixes
+
+* **FEC-12717:** add timeline dependency to ima-dai plugin ([44bdf9c](https://github.com/kaltura/playkit-js-ima-dai/commit/44bdf9c))
+
+
+
 ### [1.3.2](https://github.com/kaltura/playkit-js-ima-dai/compare/v1.3.1...v1.3.2) (2022-10-03)
 
 
