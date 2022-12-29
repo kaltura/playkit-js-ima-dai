@@ -111,7 +111,7 @@
     "access": "public"
   },
   "kaltura": {
-    "name": "ima-dai",
+    "name": "imadai",
     "dependencies": {
       "playkit-timeline": "3.0.0"
     }
