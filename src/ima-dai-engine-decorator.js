@@ -64,6 +64,10 @@ class ImaDAIEngineDecorator implements IEngineDecorator {
         url => {
           this._logger.debug('Stream url has been fetched', url);
           this._engine.src = url;
+          if (this._engine._config.sources?.captions.length > 0) {
+            this._logger.warn('External captions of original stream were removed', this._engine._config.sources.captions);
+            this._engine._config.sources.captions = [];
+          }
           this._engine.load(this._plugin.getStreamTime(startTime)).then(resolve, reject);
         },
         () => {
