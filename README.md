@@ -1,6 +1,6 @@
 # PlayKit JS IMA-DAI - IMA-DAI Plugin for the [Kaltura Player JS]
 
-[![Build Status](https://travis-ci.org/kaltura/playkit-js-ima-dai.svg?branch=master)](https://travis-ci.com/kaltura/playkit-js-ima-dai)
+[![Build Status](https://github.com/kaltura/playkit-js-ima-dai/actions/workflows/run_canary_full_flow.yaml/badge.svg)](https://github.com/kaltura/playkit-js-ima-dai/actions/workflows/run_canary_full_flow.yaml)
 [![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
 [![](https://img.shields.io/npm/v/@playkit-js/playkit-js-ima-dai/latest.svg)](https://www.npmjs.com/package/@playkit-js/playkit-js-ima-dai)
 [![](https://img.shields.io/npm/v/@playkit-js/playkit-js-ima-dai/canary.svg)](https://www.npmjs.com/package/@playkit-js/playkit-js-ima-dai/v/canary)
