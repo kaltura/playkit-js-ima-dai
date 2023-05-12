@@ -1,5 +1,5 @@
 // @flow
-import {core, BasePlugin} from 'kaltura-player-js';
+import {core, BasePlugin} from '@playkit-js/kaltura-player-js';
 import {ImaDAIState} from './ima-dai-state';
 import {ImaDAIEngineDecorator} from './ima-dai-engine-decorator';
 import {ImaDAIAdsController} from './ima-dai-ads-controller';
