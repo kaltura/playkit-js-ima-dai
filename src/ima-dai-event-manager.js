@@ -1,5 +1,5 @@
 // @flow
-import {core} from 'kaltura-player-js';
+import {core} from '@playkit-js/kaltura-player-js';
 import {ImaDAIEventQueue} from './ima-dai-event-queue';
 import {ImaDAI} from './ima-dai';
 
