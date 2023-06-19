@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### 1.3.5 (2023-05-17)
+
+
+### Bug Fixes
+
+* **FEC-13123:** replace travis with github actions ([#120](https://github.com/kaltura/playkit-js-ima-dai/issues/120)) ([34083d2](https://github.com/kaltura/playkit-js-ima-dai/commit/34083d2))
+
+
+
 ### 1.3.4 (2023-05-03)
 
 
