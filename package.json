@@ -113,7 +113,7 @@
   "kaltura": {
     "name": "imadai",
     "dependencies": {
-      "playkit-timeline": "3.0.21"
+      "playkit-timeline": "3.0.22"
     }
   },
   "kcc": {
