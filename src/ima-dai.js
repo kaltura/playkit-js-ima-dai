@@ -266,6 +266,26 @@ class ImaDAI extends BasePlugin implements IAdsControllerProvider, IEngineDecora
     this._initMembers();
   }
 
+  /**
+   * Ended event handler.
+   * @public
+   * @returns {Promise<void>} - complete promise
+   * @instance
+   * @memberof ImaDAI
+   */
+  onPlaybackEnded(): Promise<void> {
+    this.logger.debug('Playback ended');
+    if (this._state !== ImaDAIState.DONE) {
+      return new Promise(resolve => {
+        this.eventManager.listenOnce(this.player, EventType.ADS_COMPLETED, () => {
+          resolve();
+        });
+      });
+    } else {
+      return Promise.resolve();
+    }
+  }
+
   _attachListeners(): void {
     this.eventManager.listen(this.player, EventType.MUTE_CHANGE, event => {
       const mute = event.payload.mute;
