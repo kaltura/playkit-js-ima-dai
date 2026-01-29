@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## 1.4.0 (2026-01-29)
+
+
+### Features
+
+* **FEC-14869:** Adding nonce support in player plugins style tags ([#133](https://github.com/kaltura/playkit-js-ima-dai/issues/133)) ([5dfbe87](https://github.com/kaltura/playkit-js-ima-dai/commit/5dfbe87))
+
+
+
 ### 1.3.18 (2025-10-23)
 
 
