@@ -1,0 +1,175 @@
+{
+  "repositoryName": "playkit-js-ima-dai",
+  "version": "1.0.0",
+  "lastUpdated": "2026-05-04",
+
+  "coreResponsibility": {
+    "summary": "A Kaltura Player plugin that integrates Google's IMA DAI (Dynamic Ad Insertion) SDK for HTML5, enabling server-side ad insertion (SSAI) with seamless stream stitching for both VOD and live content.",
+    "type": "plugin",
+    "category": "advertising"
+  },
+
+  "domainAndLogicOwnership": {
+    "featureOwnership": [
+      "Server-side ad insertion (SSAI/DAI) integration",
+      "Google IMA DAI SDK orchestration and lifecycle management",
+      "VOD and live stream ad stitching",
+      "Ad break detection and cue point management",
+      "Snapback functionality (preventing seek past mid-roll ads)",
+      "Stream time to content time conversion",
+      "Ad event dispatching (start, pause, resume, complete, quartiles)",
+      "Ad break cue point visualization in timeline UI",
+      "Ad click handling and pause-on-click behavior",
+      "Timed metadata processing (ID3 tags for HLS)",
+      "Stream manager initialization and stream request handling"
+    ],
+    "dataHandling": {
+      "managedStates": [
+        "Plugin state machine (PLAYING, PAUSED, IDLE, DONE)",
+        "Ad break state (isAdBreak flag)",
+        "Cue points array from DAI stream",
+        "Saved seek time for snapback functionality",
+        "Stream ID and stream URL from IMA SDK",
+        "Ad progress data (currentTime, duration)",
+        "Content time / stream time mappings"
+      ],
+      "dataObjects": [
+        "ImaDAIConfigObject (assetKey, contentSourceId, videoId, apiKey, authToken, etc.)",
+        "AdBreak objects with position and type information",
+        "Ad objects with metadata from IMA SDK",
+        "StreamManager instance from Google IMA DAI SDK",
+        "StreamRequest (VODStreamRequest, LiveStreamRequest)"
+      ]
+    }
+  },
+
+  "integrationPoints": {
+    "upstream": {
+      "repositories": [
+        {
+          "name": "kaltura-player-js",
+          "relationship": "peer dependency - provides core player framework, BasePlugin class, event system",
+          "package": "@playkit-js/kaltura-player-js"
+        },
+        {
+          "name": "playkit-js",
+          "relationship": "peer dependency - provides core playback engine interfaces",
+          "package": "@playkit-js/playkit-js"
+        },
+        {
+          "name": "playkit-js-timeline",
+          "relationship": "optional dependency - provides timeline service for ad break cue points",
+          "package": "playkit-timeline"
+        }
+      ],
+      "externalServices": [
+        "Google IMA DAI SDK (ima3_dai.js from imasdk.googleapis.com)",
+        "Google Ad Manager / DFP for ad serving configuration"
+      ]
+    },
+    "downstream": {
+      "consumers": [
+        "Kaltura Player V7 web applications",
+        "kaltura-player-js bundles (OVP/OTT players)",
+        "Custom video player implementations using Kaltura Player SDK"
+      ]
+    },
+    "externalAPIs": [
+      {
+        "name": "Google IMA DAI SDK for HTML5",
+        "url": "https://developers.google.com/interactive-media-ads/docs/sdks/html5/dai/",
+        "usage": "Core ad insertion functionality - StreamManager, StreamRequest, ad events"
+      },
+      {
+        "name": "Google Ad Manager (DFP)",
+        "usage": "Ad inventory management, asset keys, content source IDs, API keys"
+      }
+    ]
+  },
+
+  "technicalStack": {
+    "primaryLanguages": ["JavaScript (ES6+)", "Flow (static type checking)"],
+    "frameworks": ["Kaltura Player Plugin Architecture"],
+    "buildTools": ["Webpack", "Babel"],
+    "testingFrameworks": ["Karma", "Mocha", "Chai", "Sinon"],
+    "codeQuality": ["ESLint", "Prettier", "Flow"],
+    "entryPoints": {
+      "main": "src/index.js",
+      "coreLogic": [
+        "src/ima-dai.js - Main plugin class implementing IAdsControllerProvider and IEngineDecoratorProvider",
+        "src/ima-dai-engine-decorator.js - Engine decorator handling playback interception for DAI",
+        "src/ima-dai-ads-controller.js - Ads controller interface implementation",
+        "src/ima-dai-event-manager.js - Event queuing and dispatching during ad breaks",
+        "src/ima-dai-state.js - Plugin state constants"
+      ],
+      "typeDefinitions": [
+        "flow-typed/types/ima-dai-config.js - Configuration type definitions"
+      ],
+      "output": "dist/playkit-ima-dai.js"
+    },
+    "pluginRegistration": {
+      "name": "imadai",
+      "namespace": "KalturaPlayer.plugins.imadai"
+    }
+  },
+
+  "triageKeywords": [
+    "ima-dai",
+    "imadai",
+    "IMA DAI",
+    "DAI SDK",
+    "server-side ad insertion",
+    "SSAI",
+    "dynamic ad insertion",
+    "StreamManager",
+    "contentSourceId",
+    "assetKey",
+    "videoId",
+    "snapback",
+    "ad stitching",
+    "cue points",
+    "getStreamUrl",
+    "streamTimeForContentTime",
+    "contentTimeForStreamTime",
+    "AD_BREAK_START",
+    "AD_BREAK_END",
+    "playkit-dai-ads-container",
+    "ima3_dai.js",
+    "ImaDAIEngineDecorator",
+    "VODStreamRequest",
+    "LiveStreamRequest",
+    "timed metadata",
+    "ID3 tags",
+    "mid-roll seek prevention"
+  ],
+
+  "errorPatterns": [
+    "IMA DAI lib failed to load",
+    "Error loading stream",
+    "ad blocker",
+    "StreamManager",
+    "getStreamTime",
+    "getContentTime",
+    "ima-dai-engine-decorator",
+    "snapback",
+    "cuepoints",
+    "stream request",
+    "AD_MANIFEST_LOADED"
+  ],
+
+  "configurationKeys": [
+    "plugins.imadai.assetKey",
+    "plugins.imadai.contentSourceId",
+    "plugins.imadai.videoId",
+    "plugins.imadai.snapback",
+    "plugins.imadai.debug",
+    "plugins.imadai.adTagParameters",
+    "plugins.imadai.apiKey",
+    "plugins.imadai.authToken",
+    "plugins.imadai.format",
+    "plugins.imadai.locale",
+    "plugins.imadai.streamActivityMonitorId",
+    "plugins.imadai.showAdBreakCuePoint",
+    "plugins.imadai.adBreakCuePointStyle"
+  ]
+}
